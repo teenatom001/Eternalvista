@@ -11,7 +11,7 @@ def get_db_connection():
     return connection
 
 
-
+# ✅ TEST CONNECTION
 if __name__ == "__main__":
     try:
         conn = get_db_connection()
