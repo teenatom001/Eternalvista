@@ -1,5 +1,4 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // ==================== Line Chart (Wedding Bookings) ====================
     const lineCtx = document.getElementById('lineChart').getContext('2d');
     new Chart(lineCtx, {
         type: 'line',
@@ -25,8 +24,6 @@ document.addEventListener('DOMContentLoaded', function() {
             plugins: { legend: { labels: { color: "#fff" } } }
         }
     });
-
-    // ==================== Bar Chart (Vendor Performance) ====================
     const barCtx = document.getElementById('barChart').getContext('2d');
     new Chart(barCtx, {
         type: 'bar',
@@ -47,8 +44,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     });
-
-    // ==================== Pie Chart (Budget Allocation) ====================
     const pieCtx = document.getElementById('pieChart').getContext('2d');
     new Chart(pieCtx, {
         type: 'pie',

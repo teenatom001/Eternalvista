@@ -9,7 +9,6 @@ db = SQLAlchemy(app)
 @app.route('/')
 def hello_world():
    return 'Hello'
-
 # admin side
 @app.route('/index')
 def index():
