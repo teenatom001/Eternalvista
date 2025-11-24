@@ -32,7 +32,6 @@ def county():
     return render_template('/admin/county.html')
 
 # vendor side
-
 @app.route('/vendorhome')
 def vendorhome():
     return render_template('vendor/vendorhome.html')
