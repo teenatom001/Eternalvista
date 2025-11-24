@@ -1,5 +1,8 @@
 from flask import Flask, render_template
 from db import get_db_connection
+from models import create_category_table
+create_category_table()
+
 
 app = Flask(__name__)
 
