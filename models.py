@@ -1,17 +1,12 @@
 
-from db import get_db_connection
+from flask_sqlalchemy import SQLAlchemy
 
-def create_category_table():
-    conn = get_db_connection()
-    cursor = conn.cursor()
+db = SQLAlchemy()
 
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS category (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            category_name VARCHAR(255) NOT NULL,
-            image varchar
-        )
-    """)
+class Category(db.Model):
+    __tablename__ = "category"
 
-    conn.commit()
-    conn.close()
+    categoryid = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    category = db.Column(db.String(255), nullable=False)
+    image = db.Column(db.String(255))   
+
