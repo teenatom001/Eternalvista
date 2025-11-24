@@ -1,0 +1,77 @@
+
+{% include 'admin/header.html' %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add City - Wedding Admin</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        body { background: #1d1f27; color: white; }
+        .navbar { background: #272a36; }
+
+        .card {
+            background: #2f3344;
+            border-radius: 10px;
+            border: 1px solid #3b3f50;
+        }
+
+        .form-control, .form-select {
+            background-color: #1f222e !important;
+            border: 1px solid #444 !important;
+            color: white !important;
+        }
+    </style>
+
+</head>
+<body>
+
+
+
+<!-- CONTENT -->
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+
+            <div class="card p-4 shadow-sm">
+                <h3 class="mb-4 text-center">Add City</h3>
+
+                <form action="#" method="POST">
+
+                    <!-- Select County -->
+                    <div class="mb-3">
+                        <label class="form-label">Select County</label>
+                        <select class="form-select" name="county_id" required>
+                            <option value="">Choose county</option>
+                            <option value="1">Dublin</option>
+                            <option value="2">Cork</option>
+                            <option value="3">Galway</option>
+                            <!-- Replace with Flask dynamic values -->
+                        </select>
+                    </div>
+
+                    <!-- City Name -->
+                    <div class="mb-3">
+                        <label class="form-label">City Name</label>
+                        <input type="text" class="form-control" name="city_name" placeholder="Enter city" required>
+                    </div>
+
+                    <!-- Submit -->
+                    <button type="submit" class="btn btn-primary w-100 py-2">
+                        <i class="fa-solid fa-city me-2"></i>Add City
+                    </button>
+
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
+{% include 'admin/footer.html' %}

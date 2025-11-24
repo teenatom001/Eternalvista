@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vendor Dashboard</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', sans-serif;
+            background: #faf7f0;
+            color: #1f352c;
+        }
+
+        /* Navbar */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 18px 50px;
+            background: #fff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .logo {
+            font-size: 26px;
+            font-weight: bold;
+            color: #b8860b;
+        }
+
+        nav a {
+            margin-left: 25px;
+            text-decoration: none;
+            color: #1f352c;
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .bell-container {
+            position: relative;
+            display: inline-block;
+            cursor: pointer;
+            margin-left: 25px;
+        }
+
+        .bell-icon {
+            font-size: 20px;
+        }
+
+        .badge {
+            position: absolute;
+            top: -5px;
+            right: -7px;
+            background: #d9534f;
+            color: white;
+            font-size: 12px;
+            padding: 2px 6px;
+            border-radius: 50%;
+        }
+
+        .dropdown {
+            display: none;
+            position: absolute;
+            right: 0;
+            background: #fff;
+            width: 260px;
+            border-radius: 8px;
+            margin-top: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .dropdown p {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+            margin: 0;
+            font-size: 15px;
+        }
+
+        .dropdown p:last-child {
+            border-bottom: none;
+        }
+
+        .welcome {
+            text-align: center;
+            padding: 60px 20px 20px;
+        }
+
+        .welcome h1 {
+            font-size: 42px;
+            margin: 0;
+        }
+
+        .container {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+            padding: 20px;
+        }
+
+        .card {
+            background: #fff;
+            width: 350px;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+
+        .card h2 {
+            font-size: 22px;
+            margin: 0 0 12px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 8px;
+        }
+
+        th, td {
+            padding: 8px;
+            border-bottom: 1px solid #eee;
+            text-align: left;
+        }
+
+        .button {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 10px;
+            background: #b8860b;
+            color: white;
+            text-align: center;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 15px;
+        }
+
+        .small-btn {
+            padding: 6px 12px;
+            border-radius: 6px;
+            color: #fff;
+            font-size: 12px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .accept { background: #28a745; }
+        .reject { background: #dc3545; }
+
+    </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <header>
+        <div class="logo">VOWS HEAVEN</div>
+
+        <nav>
+            <a href="#">Home</a>
+            <a href="#">Add Destination</a>
+            <a href="#">Add Gallery</a>
+            <a href="#">Paid Events</a>
+            <a href="#">Instructions</a>
+            <a href="#">Change Credentials</a>
+            <a href="#">Logout</a>
+
+            <div class="bell-container" onclick="toggleDropdown()">
+                <span class="bell-icon">🔔</span>
+                <span class="badge">5</span>
+
+                <div class="dropdown" id="notificationBox">
+                    <p><strong>New Request:</strong> Wedding Booking</p>
+                    <p><strong>Pending:</strong> Catering Approval</p>
+                    <p><strong>New Message:</strong> Customer Instructions</p>
+                    <p><strong>License:</strong> Renewal due soon</p>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <section class="welcome">
+        <h1>Welcome, Vendor</h1>
+        <p>Manage your bookings, gallery, and destinations.</p>
+    </section>
+
+    <div class="container">
+
+        <!-- VIEW BOOKED EVENTS -->
+        <div class="card">
+            <h2>Booked Events</h2>
+            <table>
+                <tr>
+                    <th>Event</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                </tr>
+                <tr>
+                    <td>Royal Wedding</td>
+                    <td>2025-02-10</td>
+                    <td>Booked</td>
+                </tr>
+                <tr>
+                    <td>Beach Ceremony</td>
+                    <td>2025-03-15</td>
+                    <td>Booked</td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- ACCEPT / REJECT REQUESTS -->
+        <div class="card">
+            <h2>Event Requests</h2>
+            <table>
+                <tr>
+                    <th>Event</th>
+                    <th>Action</th>
+                </tr>
+                <tr>
+                    <td>Garden Marriage</td>
+                    <td>
+                        <button class="small-btn accept">Accept</button>
+                        <button class="small-btn reject">Reject</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Luxury Hall</td>
+                    <td>
+                        <button class="small-btn accept">Accept</button>
+                        <button class="small-btn reject">Reject</button>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- TOTAL PAID EVENTS -->
+        <div class="card">
+            <h2>Paid Events</h2>
+            <p>You have <strong>8</strong> fully paid events.</p>
+            <div class="button">View Paid Events</div>
+        </div>
+
+    </div>
+
+    <script>
+        function toggleDropdown() {
+            const box = document.getElementById("notificationBox");
+            box.style.display = box.style.display === "block" ? "none" : "block";
+        }
+
+        document.addEventListener("click", function(event) {
+            const bell = document.querySelector(".bell-container");
+            if (!bell.contains(event.target)) {
+                document.getElementById("notificationBox").style.display = "none";
+            }
+        });
+    </script>
+
+</body>
+</html>
