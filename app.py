@@ -1,42 +1,39 @@
-from flask import Flask,render_template
-from flask_sqlalchemy import SQLAlchemy
-app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+from flask import Flask, render_template
+from db import get_db_connection
 
-db = SQLAlchemy(app)
+app = Flask(__name__)
 
 @app.route('/')
-def hello_world():
-   return 'Hello'
-# admin side
+def hello():
+    return "Hello"
+
+# Admin routes
 @app.route('/index')
 def index():
-    return render_template('/admin/index.html')
+    return render_template('admin/index.html')
 
 @app.route('/category')
 def category():
-    return render_template('/admin/category.html')
+    return render_template('admin/category.html')
 
 @app.route('/country')
 def country():
-    return render_template('/admin/country.html')
+    return render_template('admin/country.html')
 
 @app.route('/city')
 def city():
-    return render_template('/admin/city.html')
+    return render_template('admin/city.html')
 
 @app.route('/county')
 def county():
-    return render_template('/admin/county.html')
+    return render_template('admin/county.html')
 
-# vendor side
 
+# Vendor routes
 @app.route('/vendorhome')
 def vendorhome():
     return render_template('vendor/vendorhome.html')
 
 
 if __name__ == '__main__':
-   db.create_all()  
-   app.run(debug=True)
+    app.run(debug=True)
