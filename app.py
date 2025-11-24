@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template,request,run_query
 from models import create_category_table
 create_category_table()
 
@@ -17,6 +17,24 @@ def index():
 @app.route('/category')
 def category():
     return render_template('admin/category.html')
+
+def add_category():
+    if request.method == 'POST':
+        category = request.form['category_name']
+        image = request.form['image']
+
+        success = run_query(
+            "INSERT INTO category (category, image) VALUES (%s, %s)",
+            (category, image)
+        )
+
+        if success:
+            return "Inserted Successfully!"
+        else:
+            return "Category Not Inserted!"
+
+    return render_template('admin/category.html')
+
 
 @app.route('/country')
 def country():
