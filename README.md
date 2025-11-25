@@ -1,1 +1,1 @@
- AWebapplication for booking locations for destination wedding
+ A Webapplication for booking locations for destination wedding
