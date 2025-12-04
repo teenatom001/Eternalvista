@@ -1,55 +1,38 @@
-{% extends 'admin/base.html' %}
 
-{% block title %}Admin Dashboard{% endblock %}
+{% extends "admin/base.html" %}
+
+{% block title %}Dashboard{% endblock %}
 
 {% block content %}
+<p class="text-white mt-5 mb-5">Welcome back, <b>Admin</b></p>
 
-<h2 class="mb-4 fw-bold">Welcome back, Admin</h2>
-
-<div class="row mt-4">
-  <div class="col-md-6 mb-4">
-    <div class="card p-3 dashboard-card">
-      <h5>Wedding Bookings Overview</h5>
-      <canvas id="lineChart"></canvas>
-    </div>
-  </div>
-
-  <div class="col-md-6 mb-4">
-    <div class="card p-3 dashboard-card">
-      <h5>Vendor Performance</h5>
-      <canvas id="barChart"></canvas>
-    </div>
-  </div>
-</div>
-
-<div class="row mt-3">
-  <div class="col-md-6 mb-4">
-    <div class="card p-3 dashboard-card">
-      <h5>Budget Allocation</h5>
-      <canvas id="pieChart"></canvas>
-    </div>
-  </div>
-
-  <div class="col-md-6 mb-4">
-    <div class="card p-3 dashboard-card">
-      <h5>Latest Notifications</h5>
-      <div class="d-flex align-items-center notification mt-3">
-        <img src="{{ url_for('static', filename='admin/images/notification-01.jpg') }}" width="50" class="rounded-circle">
-        <div class="ms-3">
-          <p class="mb-0"><b>New Booking</b> received from Sarah & James.</p>
-          <small>2h ago</small>
+<div class="row tm-content-row">
+    <div class="col-lg-6 tm-block-col">
+        <div class="tm-bg-primary-dark tm-block">
+            <h2 class="tm-block-title">Latest Hits</h2>
+            <canvas id="lineChart"></canvas>
         </div>
-      </div>
     </div>
-  </div>
+    <div class="col-lg-6 tm-block-col">
+        <div class="tm-bg-primary-dark tm-block">
+            <h2 class="tm-block-title">Performance</h2>
+            <canvas id="barChart"></canvas>
+        </div>
+    </div>
 </div>
-
 {% endblock %}
 
 {% block scripts %}
-<!-- Chart.js Library -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-<!-- Custom Chart JS -->
-<script src="{{ url_for('static', filename='admin/js/chart.js') }}"></script>
+<script>
+    Chart.defaults.global.defaultFontColor = 'white';
+    $(function () {
+        drawLineChart();
+        drawBarChart();
+        drawPieChart();
+        $(window).resize(function () {
+            updateLineChart();
+            updateBarChart();
+        });
+    });
+</script>
 {% endblock %}
