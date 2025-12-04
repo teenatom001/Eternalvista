@@ -16,7 +16,7 @@ def hello():
 def index():
     return render_template('admin/index.html')
 
-@app.route('/category')
+@app.route('/admin/category')
 def category():
     return render_template('admin/category.html')
 
@@ -38,17 +38,17 @@ def category():
 
 
 # Other admin pages
-@app.route('/country')
+@app.route('/admin/country')
 def country():
     return render_template('admin/country.html')
 
 
-@app.route('/city')
+@app.route('/admin/city')
 def city():
     return render_template('admin/city.html')
 
 
-@app.route('/county')
+@app.route('/admin/county')
 def county():
     return render_template('admin/county.html')
 

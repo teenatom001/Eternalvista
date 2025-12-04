@@ -1,66 +1,39 @@
+{% extends "admin/base.html" %}
 
-{% include 'admin/header.html' %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add County - Wedding Admin</title>
+{% block title %}Add County{% endblock %}
 
-    <!-- Bootstrap -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-    <style>
-        body { background: #1d1f27; color: white; }
-        .navbar { background: #272a36; }
-
-        .card { 
-            background: #2f3344; 
-            border-radius: 10px;
-            border: 1px solid #3b3f50;
-        }
-
-        .form-control {
-            background-color: #1f222e !important;
-            border: 1px solid #444 !important;
-            color: white !important;
-        }
-    </style>
-
-</head>
-<body>
-
-
-
-<!-- CONTENT -->
-<div class="container my-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-6">
-
-            <div class="card p-4 shadow-sm">
-                <h3 class="mb-4 text-center">Add County</h3>
-
-                <form action="#" method="POST">
-
-                    <!-- County Name -->
-                    <div class="mb-3">
-                        <label class="form-label">County Name</label>
-                        <input type="text" class="form-control" name="county_name" placeholder="Enter county" required>
-                    </div>
-
-                    <!-- Submit -->
-                    <button type="submit" class="btn btn-primary w-100 py-2">
-                        <i class="fa-solid fa-plus me-2"></i>Add County
-                    </button>
-
-                </form>
+{% block content %}
+<div class="row">
+    <div class="col-xl-8 col-lg-10 col-md-12 col-sm-12 mx-auto">
+        <div class="tm-bg-primary-dark tm-block tm-block-h-auto">
+            <div class="row mb-4">
+                <div class="col-12">
+                    <h2 class="tm-block-title">Add County</h2>
+                </div>
             </div>
 
+            <form action="" method="POST" class="tm-edit-product-form">
+                <div class="form-group mb-3">
+                    <label for="county">County Name</label>
+                    <input 
+                        id="county" 
+                        name="county" 
+                        type="text" 
+                        class="form-control validate" 
+                        placeholder="Enter county name" 
+                        required 
+                    />
+                </div>
+
+               
+
+                <div class="text-center">
+                    <button type="submit" class="btn btn-primary btn-block text-uppercase">
+                        Add County
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
-
-</body>
-</html>
-{% include 'admin/footer.html' %}
+{% endblock %}

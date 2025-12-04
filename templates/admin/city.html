@@ -1,77 +1,50 @@
+{% extends "admin/base.html" %}
 
-{% include 'admin/header.html' %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add City - Wedding Admin</title>
+{% block title %}Add City{% endblock %}
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+{% block content %}
 
-    <style>
-        body { background: #1d1f27; color: white; }
-        .navbar { background: #272a36; }
-
-        .card {
-            background: #2f3344;
-            border-radius: 10px;
-            border: 1px solid #3b3f50;
-        }
-
-        .form-control, .form-select {
-            background-color: #1f222e !important;
-            border: 1px solid #444 !important;
-            color: white !important;
-        }
-    </style>
-
-</head>
-<body>
-
-
-
-<!-- CONTENT -->
-<div class="container my-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-6">
-
-            <div class="card p-4 shadow-sm">
-                <h3 class="mb-4 text-center">Add City</h3>
-
-                <form action="#" method="POST">
-
-                    <!-- Select County -->
-                    <div class="mb-3">
-                        <label class="form-label">Select County</label>
-                        <select class="form-select" name="county_id" required>
-                            <option value="">Choose county</option>
-                            <option value="1">Dublin</option>
-                            <option value="2">Cork</option>
-                            <option value="3">Galway</option>
-                            <!-- Replace with Flask dynamic values -->
-                        </select>
-                    </div>
-
-                    <!-- City Name -->
-                    <div class="mb-3">
-                        <label class="form-label">City Name</label>
-                        <input type="text" class="form-control" name="city_name" placeholder="Enter city" required>
-                    </div>
-
-                    <!-- Submit -->
-                    <button type="submit" class="btn btn-primary w-100 py-2">
-                        <i class="fa-solid fa-city me-2"></i>Add City
-                    </button>
-
-                </form>
+<div class="row">
+    <div class="col-xl-8 col-lg-10 col-md-12 col-sm-12 mx-auto">
+        <div class="tm-bg-primary-dark tm-block tm-block-h-auto">
+            <div class="row mb-4" >
+                <div class="col-12">
+                    <h2 class="tm-block-title">Add City</h2>
+                </div>
             </div>
 
+            <form action="" method="POST" class="tm-edit-product-form">
+                <div class="form-group mb-3">
+                    <label for="city_name">City Name</label>
+                    <input 
+                        id="city_name" 
+                        name="city_name" 
+                        type="text" 
+                        class="form-control validate" 
+                        placeholder="Enter city name" 
+                        required 
+                    />
+                </div>
+
+              
+                <div class="form-group mb-3">
+                    <label for="county">County</label>
+                    <select id="county" name="county" class="custom-select tm-select-accounts" required>
+                        <option selected disabled>Select county</option>
+                       
+                        <option value="1">County 1</option>
+                        <option value="2">County 2</option>
+                        <option value="3">County 3</option>
+                    </select>
+                </div>
+
+                <div class="text-center">
+                    <button type="submit" class="btn btn-primary btn-block text-uppercase">
+                        Add City
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
-
-</body>
-</html>
-{% include 'admin/footer.html' %}
+{% endblock %}

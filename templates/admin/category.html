@@ -1,101 +1,43 @@
+{% extends "admin/base.html" %}
 
-{% include 'admin/header.html' %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add Category - Wedding Admin</title>
+{% block title %}Add Category{% endblock %}
 
-
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-
-
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-
-
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-  <style>
-    body { background: #1d1f27; color: white; }
-    .navbar { background: #272a36; }
-    .navbar .nav-link { color: #ccc !important; }
-    .navbar .nav-link.active { color: #fff !important; font-weight: bold; }
-
-    .card { 
-        background: #2f3344; 
-        color: white; 
-        border-radius: 10px; 
-        border: 1px solid #3b3f50;
-    }
-    footer { 
-        background: #272a36; 
-        color: white; 
-        padding: 15px; 
-        text-align: center; 
-        margin-top: 30px; 
-    }
-
-    /* Dark-theme input fields */
-    .form-control, .form-select, textarea {
-        background-color: #1f222e !important;
-        border: 1px solid #444 !important;
-        color: #fff !important;
-        border-radius: 8px;
-    }
-
-    .form-control::placeholder,
-    textarea::placeholder {
-        color: #999 !important;
-    }
-
-    label { font-weight: 600; }
-</style>
-
-</head>
-
-<body>
-
-
-
-<!-- MAIN CONTENT -->
-<div class="container my-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-6 col-md-8">
-
-            <div class="card p-4 shadow-sm">
-                <h3 class="mb-4 text-center">Add Category</h3>
-
-               <form method="POST" action="" enctype="multipart/form-data">
-
-                    <!-- Category Name -->
-                    <div class="mb-3">
-                        <label for="category_name" class="form-label">Category Name</label>
-                        <input type="text" class="form-control" id="category_name" name="category_name" placeholder="Enter category name" required>
-                    </div>
-
-                    
-
-                    <!-- Status -->
-                    <div class="mb-3">
-                        <label for="category_name" class="form-label">Image</label>
-                        <input type="file" class="form-control" id="category_name" name="image" placeholder="Enter category name" required>
-                    </div>
-
-                    <!-- Submit Button -->
-                    <button type="submit" class="btn btn-primary w-100 py-2">
-                        <i class="fa-solid fa-plus-circle me-2"></i>Add Category
-                    </button>
-                </form>
+{% block content %}
+<div class="row">
+    <div class="col-xl-8 col-lg-10 col-md-12 col-sm-12 mx-auto">
+        <div class="tm-bg-primary-dark tm-block tm-block-h-auto">
+            <div class="row mb-4">
+                <div class="col-12">
+                    <h2 class="tm-block-title">Add Category</h2>
+                </div>
             </div>
 
+            <form action="" method="POST" enctype="multipart/form-data" class="tm-edit-product-form">
+                <div class="form-group mb-3">
+                    <label for="name">Category Name</label>
+                    <input id="name" name="catname" type="text" class="form-control validate" placeholder="Enter category name" required />
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="description">Description</label>
+                    <textarea id="description" name="description" class="form-control validate" rows="4" placeholder="Enter description" required></textarea>
+                </div>
+
+                <div class="form-group mb-4">
+                    <label for="image">Category Image</label>
+                    <div class="custom-file">
+                        <input type="file" class="custom-file-input" id="image" name="image" class="form-control validate">
+                        <label class="custom-file-label" for="image">Choose file</label>
+                    </div>
+                </div>
+
+                <div class="text-center">
+                    <button type="submit" class="btn btn-primary btn-block text-uppercase">Add Category</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
 
-<br>
 
-
-</body>
-</html>
+{% endblock %}
