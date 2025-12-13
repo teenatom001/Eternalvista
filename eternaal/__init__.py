@@ -1,3 +1,6 @@
+"""
+This file makes the 'eternaal' directory a package and contains the application factory.
+"""
 import os
 from flask import Flask
 
