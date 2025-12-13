@@ -70,33 +70,6 @@
             <small class="text-muted"><a href="/" style="color: #999;">Back to Home</a></small>
         </div>
     </div>
-
-    <script>
-        document.getElementById('login-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-            const alertPlaceholder = document.getElementById('login-alert-placeholder');
-
-            try {
-                const res = await fetch('/login', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username, password })
-                });
-
-                const data = await res.json();
-
-                if (res.ok) {
-                    window.location.href = data.redirect || '/';
-                } else {
-                    alertPlaceholder.innerHTML = `<div class="alert alert-danger">${data.error || 'Login failed'}</div>`;
-                }
-            } catch (err) {
-                alertPlaceholder.innerHTML = `<div class="alert alert-danger">An error occurred. Please try again.</div>`;
-            }
-        });
-    </script>
 </body>
 
 </html>
