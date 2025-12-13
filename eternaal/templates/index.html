@@ -1,75 +1,312 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Eternal</title>
+{% extends 'base.html' %}
 
-  
-    <link rel="stylesheet"
-          href="{{ url_for('static', filename='style.css') }}">
-</head>
+{% block content %}
+<style>
+    /* Antigravity UI Styles */
+    .antigravity-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border: none;
+        border-radius: 12px;
+        background: #fff;
+        overflow: hidden;
+    }
 
-<body>
+    .antigravity-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+    }
 
-<header>
-    <h1>Eternal</h1>
-    <nav>
-       
-            <span>Welcome</span> |
-            <a href="">Logout</a>
-           
-                | <a href="">Admin Panel</a>
-          
-     
-            <a href="">Login</a> |
-            <a href="">Register</a>
-       
-    </nav>
+    .status-badge {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        z-index: 10;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .status-available {
+        background: #d4edda;
+        color: #155724;
+    }
+
+    .status-unavailable {
+        background: #f8d7da;
+        color: #721c24;
+    }
+</style>
+
+<!-- Hero Section -->
+<header class="hero-section text-white d-flex align-items-center justify-content-center"
+    style="background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('/static/img/hero.png') center/cover no-repeat; height: 85vh;">
+    <div class="container text-center">
+        <h1 class="display-2 font-playfair mb-4">Eternal Vista</h1>
+        <p class="lead mb-5 fs-4">Turning your dream destination wedding into reality.<br>From the Cliffs of Moher to
+            the Castles of Cork.</p>
+
+        <!-- Search Form -->
+        <div class="card p-4 shadow-lg mx-auto" style="max-width: 800px; background: rgba(255,255,255,0.95);">
+            <form id="searchForm" class="row g-3">
+                <div class="col-md-5">
+                    <div class="form-floating">
+                        <select class="form-select" id="locationFilter" aria-label="Location">
+                            <option value="" selected disabled>Select Destination</option>
+                            {% for dest in destinations %}
+                            <option value="{{ dest.id }}" data-desc="{{ dest.description or '' }}">{{ dest.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                        <label for="locationFilter">Where?</label>
+                    </div>
+                </div>
+                <div class="col-md-5">
+                    <div class="form-floating">
+                        <select class="form-select" id="serviceFilter" aria-label="Service">
+                            <option value="" selected disabled>Select Service</option>
+                            {% for cat in categories %}
+                            <option value="{{ cat.id }}" data-price="{{ cat.price_per_hour }}"
+                                data-desc="{{ cat.description or '' }}">{{ cat.name }} (€{{
+                                cat.price_per_hour }}/hr)</option>
+                            {% endfor %}
+                        </select>
+                        <label for="serviceFilter">What?</label>
+                    </div>
+                </div>
+                <div class="col-md-2 d-grid">
+                    <button type="submit" class="btn btn-gold h-100">Check Availability</button>
+                </div>
+            </form>
+        </div>
+    </div>
 </header>
 
-<div class="container">
-
-  
-    <div id="alert-placeholder"></div>
-
-   
-    <section id="destinations-section">
-        <h2>Our Destinations</h2>
-        <div id="destinations-list">
-           
-        </div>
-    </section>
-
-    <section id="venues-section" class="hidden">
-        <h2>
-            Venues in <span id="selected-destination-name"></span>
-        </h2>
-
-        <div style="margin-bottom:20px;">
-            <button type="button"
-                    onclick="
-                        document.getElementById('venues-section').style.display='none';
-                        document.getElementById('destinations-section').scrollIntoView();
-                    ">
-                Back to Destinations
-            </button>
+<!-- Catalog Section -->
+<section id="catalogSection" class="py-5 bg-light">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="font-playfair">Browse Collections</h2>
+            <p class="text-muted">Explore our exclusive venues and services.</p>
         </div>
 
-        <div id="venues-list">
-         
+        <div id="catalogContainer">
+            <div class="text-center py-5">
+                <div class="spinner-border text-gold"></div>
+            </div>
         </div>
-    </section>
+    </div>
+</section>
 
- 
-   
+<!-- Search Results Section (Kept for manual search) -->
+<section id="searchResults" class="py-5 d-none">
+    <div class="container">
+        <h2 class="font-playfair text-center mb-4">Availability Result</h2>
+        <div class="row justify-content-center" id="resultsContainer"></div>
+    </div>
+</section>
+
+<!-- Booking Modal -->
+<div class="modal fade" id="bookingModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-gold">
+                <h5 class="modal-title font-playfair">Request Booking</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="bookingForm">
+                    <input type="hidden" id="bookDestId">
+                    <input type="hidden" id="bookCatId">
+                    <div class="mb-3">
+                        <label class="form-label">Service</label>
+                        <input type="text" class="form-control" id="bookServiceName" readonly>
+                    </div>
+                    <div class="row">
+                        <div class="col-6 mb-3">
+                            <label class="form-label">Date</label>
+                            <input type="date" class="form-control" id="bookDate" required>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <label class="form-label">Start Time</label>
+                            <input type="time" class="form-control" id="bookTime" value="09:00" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Duration (Hours)</label>
+                        <input type="number" class="form-control" id="bookHours" min="1" value="5"
+                            onchange="updateTotal()" required>
+                    </div>
+                    <div class="mb-3 text-end">
+                        <h5>Total: €<span id="bookTotal">0.00</span></h5>
+                        <small class="text-muted">Rate: €<span id="bookRate">0.00</span>/hr</small>
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-dark">Send Request</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 </div>
 
-<footer>
-    &copy; 2025 Eternal. All rights reserved.
-</footer>
+{% endblock %}
 
+{% block scripts %}
+<script>
+    let currentRate = 0;
 
-<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+    document.addEventListener('DOMContentLoaded', loadCatalog);
 
-</body>
-</html>
+    async function loadCatalog() {
+        try {
+            const resp = await fetch('/api/catalog');
+            const data = await resp.json();
+            renderCatalog(data);
+        } catch (err) {
+            console.error(err);
+            document.getElementById('catalogContainer').innerHTML = '<p class="text-center text-danger">Failed to load catalog.</p>';
+        }
+    }
+
+    function renderCatalog(categories) {
+        const container = document.getElementById('catalogContainer');
+        container.innerHTML = '';
+
+        categories.forEach(cat => {
+            let itemsHtml = cat.items.map(item => createCardHtml(item, cat, item.status)).join('');
+
+            // "At least 2 cards" rule
+            if (cat.items.length === 1) {
+                itemsHtml += `
+                    <div class="col-md-4 mb-4">
+                        <div class="card h-100 antigravity-card border-0">
+                            <div class="card-body d-flex flex-column justify-content-center align-items-center bg-light text-muted" style="min-height: 300px;">
+                                <i class="bi bi-slash-circle fs-1 mb-2"></i>
+                                <h5>Not Available</h5>
+                                <p class="small">More options coming soon.</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Show category image if available
+            const catImageHtml = cat.image ? `<img src="${cat.image}" alt="${cat.name}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px; margin-right: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">` : '';
+
+            const sectionHtml = `
+                <div class="mb-5">
+                    <div class="d-flex align-items-center border-bottom pb-3 mb-4">
+                        ${catImageHtml}
+                        <div>
+                            <h3 class="font-playfair mb-1">${cat.name}</h3>
+                            <p class="text-muted mb-0"><small>${cat.description || ''}</small> <span class="badge bg-gold text-dark">€${cat.price}/hr</span></p>
+                        </div>
+                    </div>
+                    <div class="row">
+                        ${itemsHtml}
+                    </div>
+                </div>
+            `;
+            container.innerHTML += sectionHtml;
+        });
+    }
+
+    function createCardHtml(item, cat, status) {
+        const isAvail = status === 'Available';
+        const badgeClass = isAvail ? 'status-available' : 'status-unavailable';
+        const btnState = isAvail ? '' : 'disabled';
+        const btnText = isAvail ? 'Book Now' : 'Booked';
+        const imgUrl = item.image || `https://source.unsplash.com/600x400/?${item.name},${cat.name}`;
+        return `
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 antigravity-card position-relative shadow-sm">
+                <span class="status-badge ${badgeClass}">${status}</span>
+                <img src="${imgUrl}" class="card-img-top" alt="${item.name}"
+                     style="height: 220px; object-fit: cover;">
+                <div class="card-body">
+                    <h5 class="card-title font-playfair">${item.name}</h5>
+                    <p class="card-text text-muted small">${item.description || 'Experience the beauty of this location.'}</p>
+                    <div class="d-grid mt-3">
+                        {% if session.user_id %}
+                        <button class="btn btn-outline-dark btn-sm" ${btnState}
+                                onclick="openBookingModal(${item.id}, '${item.name}', ${cat.id}, '${cat.name}', ${cat.price})">
+                            ${btnText}
+                        </button>
+                        {% else %}
+                        <a href="{{ url_for('login') }}" class="btn btn-outline-dark btn-sm">Log in to Book</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>`;
+    }
+
+    // --- Search & Booking ---
+    // Safe-check login status
+    const isLoggedIn = "{{ 'true' if session.user_id else 'false' }}" === "true";
+
+    // Existing search logic...
+    document.getElementById('searchForm').addEventListener('submit', function (e) {
+        // ... (Keep existing search logic but simplified if needed) ...
+        e.preventDefault();
+        if (!isLoggedIn) { alert('Please log in to search'); return; }
+        const destSelect = document.getElementById('locationFilter');
+        const catSelect = document.getElementById('serviceFilter');
+        if (!destSelect.value || !catSelect.value) { alert('Select both!'); return; }
+
+        const destOption = destSelect.options[destSelect.selectedIndex];
+        const catOption = catSelect.options[catSelect.selectedIndex];
+
+        openBookingModal(
+            destSelect.value, destOption.text,
+            catSelect.value, catOption.text,
+            parseFloat(catOption.dataset.price)
+        );
+    });
+
+    function openBookingModal(destId, destName, catId, catName, price) {
+        document.getElementById('bookDestId').value = destId;
+        document.getElementById('bookCatId').value = catId;
+        document.getElementById('bookServiceName').value = catName;
+        document.getElementById('bookRate').innerText = price.toFixed(2);
+        currentRate = price;
+        updateTotal();
+        new bootstrap.Modal(document.getElementById('bookingModal')).show();
+    }
+
+    function updateTotal() {
+        const hours = document.getElementById('bookHours').value;
+        const total = hours * currentRate;
+        document.getElementById('bookTotal').innerText = total.toFixed(2);
+    }
+
+    document.getElementById('bookingForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        const data = {
+            destination_id: document.getElementById('bookDestId').value,
+            category_id: document.getElementById('bookCatId').value,
+            date: document.getElementById('bookDate').value,
+            time: document.getElementById('bookTime').value,
+            hours: document.getElementById('bookHours').value
+        };
+
+        fetch('/api/bookings', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        })
+            .then(r => r.json())
+            .then(d => {
+                if (d.message) {
+                    alert(d.message);
+                    window.location.href = "{{ url_for('dashboard') }}";
+                } else {
+                    alert(d.error);
+                }
+            });
+    });
+</script>
+{% endblock %}
