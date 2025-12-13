@@ -1,22 +1,29 @@
 import functools
 from flask import (
-    Blueprint, flash, g, redirect, render_template, request, session, url_for
+    Blueprint, flash, g, redirect, render_template, request, session, url_for, jsonify
 )
 from werkzeug.security import check_password_hash, generate_password_hash
 from eternaal.db import get_db
 
+# Create a 'Blueprint' to organize authentication routes (login, register, logout)
 bp = Blueprint('auth', __name__)
 
+# --- Helper: Protect Routes ---
 def login_required(view):
+    # A 'decorator' that checks if a user is logged in.
+    # If not, it redirects them to the login page.
     @functools.wraps(view)
     def wrapped_view(**kwargs):
         if g.user is None:
             return redirect(url_for('auth.login'))
-        return view(**kwargs)  # Fixed: was calling wrapped_view instead of view
+        return view(**kwargs)
     return wrapped_view
 
+# --- Helper: Load User ---
 @bp.before_app_request
 def load_logged_in_user():
+    # Before every request, check if a 'user_id' is stored in the session.
+    # If yes, load the user from the database into 'g.user' so we can use it.
     user_id = session.get('user_id')
 
     if user_id is None:
@@ -26,49 +33,12 @@ def load_logged_in_user():
             'SELECT * FROM user WHERE id = ?', (user_id,)
         ).fetchone()
 
-@bp.route('/register', methods=('GET', 'POST'))
-def register():
-    if request.method == 'POST':
-        is_json = request.is_json
-        data = request.get_json() if is_json else request.form
-        
-        username = data.get('username')
-        password = data.get('password')
-        role = 'customer'
-        db = get_db()
-        error = None
 
-        if not username:
-            error = 'Username is required.'
-        elif not password:
-            error = 'Password is required.'
-
-        if error is None:
-            try:
-                db.execute(
-                    'INSERT INTO user (username, password, role) VALUES (?, ?, ?)',
-                    (username, generate_password_hash(password), role)
-                )
-                db.commit()
-                if is_json:
-                    return jsonify({'message': 'Registration successful'}), 201
-                else:
-                    flash('Registration successful! Please login.')
-                    return redirect(url_for('auth.login'))
-            except db.IntegrityError:
-                error = f"User {username} is already registered."
-        
-        if is_json:
-            return jsonify({'error': error}), 400
-        else:
-            flash(error)
-
-    return render_template('register.html')
-
-from flask import jsonify
-
+# --- Login Route ---
 @bp.route('/login', methods=('GET', 'POST'))
 def login():
+    # Handles user login.
+    # Verifies username and password, then stores user_id in session.
     if request.method == 'POST':
         is_json = request.is_json
         data = request.get_json() if is_json else request.form
@@ -77,33 +47,35 @@ def login():
         password = data.get('password')
         db = get_db()
         error = None
-        
-        if not username or not password:
-             error = 'Username and password required'
-             if is_json: return jsonify({'error': error}), 400
-             else: 
-                 flash(error)
-                 return render_template('login.html')
 
+        # 1. Check if user exists
         user = db.execute(
             'SELECT * FROM user WHERE username = ?', (username,)
         ).fetchone()
 
+        # 2. Verify password
         if user is None:
             error = 'Incorrect username.'
         elif not check_password_hash(user['password'], password):
             error = 'Incorrect password.'
 
+        # 3. Login successful
         if error is None:
-            session.clear()
-            session['user_id'] = user['id']
-            redirect_url = url_for('routes.admin') if user['role'] == 'admin' else url_for('routes.index')
+            session.clear() # Clear any old session data
+            session['user_id'] = user['id'] # Store user ID in session cookie
+            
+            # Redirect based on role
+            if user['role'] == 'admin':
+                redirect_url = url_for('routes.admin')
+            else:
+                redirect_url = url_for('routes.index')
             
             if is_json:
                 return jsonify({'message': 'Login successful', 'redirect': redirect_url}), 200
             else:
                 return redirect(redirect_url)
 
+        # Error response
         if is_json:
             return jsonify({'error': error}), 400
         else:
@@ -111,7 +83,3 @@ def login():
 
     return render_template('login.html')
 
-@bp.route('/logout')
-def logout():
-    session.clear()
-    return redirect(url_for('routes.index'))
