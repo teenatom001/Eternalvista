@@ -1,494 +1,196 @@
+# Programming for Information Systems – Project Submission
 
+## Module Details
 
-
-
-
-
-## Project Overview
-
-### Organization: EternalVista
-
-**Business Context:**  
-EternalVista is a small wedding destination planning company that specializes in organizing destination weddings across Ireland. The company manages multiple wedding destinations (Dublin, Wicklow, Cork) and provides various wedding venues at each location.
-
-**Problem Statement:**  
-The company currently manages bookings manually through spreadsheets and phone calls, leading to:
-- Double bookings and scheduling conflicts
-- Difficulty tracking venue availability
-- Inefficient customer communication
-- No centralized data management
-
-**Solution:**  
-A web-based Information System that provides:
-- Centralized database for destinations, venues, and bookings
-- Real-time availability checking
-- Admin dashboard for managing all resources
-- Customer booking interface
-- Full CRUD operations for all entities
+| Item                      | Description                                        |
+| ------------------------- | -------------------------------------------------- |
+| **Module Title**          | Programming for Information Systems                |
+| **Module Code**           | B9IS123                                            |
+| **Programme/Cohort**      | 2526_TMD1                                          |
+| **Assessment Number**     | 2                                                  |
+| **Submission Components** | Code/Project (GitHub), Documentation, Presentation |
+| **Student**               | Teena Tom                                          |
 
 ---
 
-## System Requirements
+## Assignment Task: "Eternal" – Wedding Venue Booking System
 
-### Functional Requirements
+### Selected Organization
 
-#### 1. **Destination Management** (CRUD)
-- **Create:** Admin can add new wedding destinations
-- **Read:** View all available destinations with details
-- **Update:** Modify destination information
-- **Delete:** Remove destinations from the system
-
-#### 2. **Venue Management** (CRUD)
-- **Create:** Admin can add venues to destinations
-- **Read:** View venues filtered by destination
-- **Update:** Modify venue details (capacity, price, availability)
-- **Delete:** Remove venues from the system
-
-#### 3. **Booking Management** (CRUD)
-- **Create:** Customers can create booking requests
-- **Read:** View all bookings (admin) or own bookings (customer)
-- **Update:** Admin can update booking status (pending/accepted/rejected/paid)
-- **Delete:** Admin can cancel bookings
-
-#### 4. **User Authentication**
-- Login system for admin users
-- Role-based access control (admin vs. public)
-- Session management
-
-#### 5. **Availability Checking**
-- Real-time validation of destination/venue availability
-- Prevent double bookings
-- Display availability status to users
-
-### Non-Functional Requirements
-
-- **Usability:** Simple, intuitive interface
-- **Performance:** Fast API responses (<500ms)
-- **Security:** Password hashing, session management
-- **Data Integrity:** Foreign key constraints, validation
-- **Maintainability:** Modular code structure, clear documentation
+**Name:** Eternal (formerly EternalVista)
+**Business Context:** I designed this system for a boutique wedding planning agency in Ireland that manages exclusive venues across destinations such as Dublin, Wicklow, and Cork.
+**Justification:** The organisation currently relies on manual processes such as spreadsheets and phone calls, which frequently leads to double bookings and inefficiencies. I identified that a web‑based CRUD system would solve this problem by centralising venue availability and booking management.
 
 ---
 
-## Architecture
+## Requirements of the Information System
 
-### System Architecture Pattern: **RESTful API with Frontend-Backend Separation**
+### 1. Data Requirements (CRUD)
 
+The system I developed manages the following entities with full Create, Read, Update, and Delete (CRUD) functionality:
+
+* **Destinations** (e.g., Dublin, Cork)
+
+  * *Create/Update/Delete:* Performed by Admin users only.
+  * *Read:* Available to all users.
+
+* **Venues** (e.g., Grand Ballroom, Garden Suite)
+
+  * *Create/Update/Delete:* Admin only.
+  * *Read:* Publicly available and linked to Destinations.
+
+* **Bookings**
+
+  * *Create:* Registered customers can submit booking requests.
+  * *Read:* Customers can view only their own bookings, while Admins can view all bookings.
+  * *Update:* Admins update booking status (Confirmed / Cancelled).
+  * *Delete:* Admins can remove bookings when required.
+
+* **Users**
+
+  * *Read:* Admins can view registered users.
+  * *Delete:* Admins can ban or remove users from the system.
+
+---
+
+### 2. User Roles & Validation
+
+I implemented role‑based access control to ensure system security and correct usage:
+
+* **Admin:** Has full access to manage destinations, venues, users, and all bookings.
+* **Customer:** Can browse destinations and venues, view only their own bookings, and create new booking requests.
+
+**Validation Rules Implemented:**
+
+* **Availability Checks:** The system prevents double booking of the same venue on the same date.
+* **Input Validation:** All forms validate required fields, valid dates, and logical constraints before submission.
+
+---
+
+## System Architecture
+
+The application follows the required **API‑First Architecture**, which I implemented as follows:
+
+### 1. Backend (API Provider)
+
+* Built using **Flask (Python)** and **SQLite**.
+* Provides REST‑style JSON endpoints such as `GET /api/destinations` and `POST /api/bookings`.
+* Handles all database operations, session management, authentication, and business rules including availability checking.
+
+### 2. Frontend (API Consumer)
+
+* Developed using **HTML5, Bootstrap 5, and Vanilla JavaScript**.
+* The frontend consumes backend APIs using JavaScript `fetch()` calls.
+* Main content is not rendered directly using Jinja templates; instead, JSON data is retrieved asynchronously and injected into the DOM.
+* CRUD operations occur without page refreshes, providing a smoother user experience.
+
+**Technology Stack Used:**
+
+* **Programming Languages:** Python 3.13, JavaScript (ES6+)
+* **Framework:** Flask 3.1.2
+* **Database:** SQLite
+* **Testing Framework:** Pytest
+
+---
+
+## Testing & Debugging
+
+I created and executed automated tests to verify correctness and reliability.
+
+### 1. Running Tests
+
+After activating the virtual environment, tests can be executed using:
+
+```bash
+pytest
+# or
+pytest -v
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                        Frontend (HTML/JS)                    │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐      │
-│  │  index.html  │  │  admin.html  │  │  login.html  │      │
-│  └──────────────┘  └──────────────┘  └──────────────┘      │
-│         │                  │                  │              │
-│         └──────────────────┴──────────────────┘              │
-│                            │                                 │
-│                    fetch() API Calls                         │
-│                            │                                 │
-└────────────────────────────┼─────────────────────────────────┘
-                             │
-                    ┌────────▼────────┐
-                    │   Flask API     │
-                    │   (routes.py)   │
-                    └────────┬────────┘
-                             │
-                    ┌────────▼────────┐
-                    │   Database      │
-                    │   (SQLite)      │
-                    └─────────────────┘
-```
 
-**Key Architectural Decisions:**
+### 2. Test Coverage
 
-1. **API-First Design:** All data operations go through REST API endpoints
-2. **No Page Refreshes:** Frontend uses `fetch()` for all CRUD operations
-3. **Separation of Concerns:** 
-   - `routes.py` - API endpoints
-   - `auth.py` - Authentication logic
-   - `db.py` - Database operations
-   - `templates/` - HTML views
-   - `static/js/` - Frontend JavaScript
-
-4. **Stateless API:** Each request contains all necessary information
-5. **JSON Communication:** All API requests/responses use JSON format
+* **Unit Tests:** I tested individual API endpoints (for example, ensuring destination creation returns HTTP 201).
+* **Integration Tests:** I validated full workflows from frontend payloads through API endpoints to database persistence.
+* **Business Logic Tests:** I specifically tested the double‑booking prevention logic to ensure venues cannot be booked more than once for the same date.
 
 ---
 
 ## Installation & Setup
 
-### Prerequisites
-- Python 3.8+
-- Git
+### 1. Clone the Repository
 
-### Step 1: Clone the Repository
 ```bash
-git clone https://github.com/[YOUR-USERNAME]/eternaal.git
+git clone <repository-url>
 cd eternaal
 ```
 
-### Step 2: Create Virtual Environment
+### 2. Virtual Environment Setup
+
 ```bash
 python -m venv venv
-venv\Scripts\activate  # Windows
-# OR
-source venv/bin/activate  # Mac/Linux
+# Windows
+venv\Scripts\activate
+# macOS / Linux
+source venv/bin/activate
 ```
 
-### Step 3: Install Dependencies
+### 3. Install Dependencies
+
 ```bash
 pip install -r requirements.txt
 ```
 
-### Step 4: Initialize Database
+### 4. Database Initialization
+
+The application automatically creates the database if it does not exist. To reset it manually, I used:
+
 ```bash
 python -c "from eternaal import create_app; from eternaal.db import init_db; app = create_app(); app.app_context().push(); init_db()"
 ```
 
-### Step 5: Run the Application
+*(This command clears existing data.)*
+
+### 5. Run the Application
+
 ```bash
+flask run
+# or
 python app.py
 ```
 
-The application will be available at: `http://127.0.0.1:5000`
+The application runs at `http://127.0.0.1:5000`.
 
-### Default Admin Credentials
-- **Username:** admin
-- **Password:** admin123
+### 6. Admin Login Credentials
 
----
-
-## CRUD Operations
-
-### 1. Destinations CRUD
-
-#### Create Destination
-```javascript
-// Frontend (JavaScript)
-fetch('/api/destinations', {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({
-        name: 'Dublin',
-        description: 'Historic city weddings',
-        image_url: 'https://example.com/dublin.jpg'
-    })
-});
-```
-
-```python
-# Backend (routes.py)
-@bp.route('/api/destinations', methods=['POST'])
-@login_required
-def create_destination():
-    data = request.get_json()
-    db = get_db()
-    db.execute('INSERT INTO destination (name, description, image_url, availability) VALUES (?, ?, ?, ?)',
-               (data['name'], data['description'], data.get('image_url'), 1))
-    db.commit()
-    return jsonify({'message': 'Destination created'}), 201
-```
-
-#### Read Destinations
-```javascript
-// Frontend
-fetch('/api/destinations')
-    .then(res => res.json())
-    .then(data => console.log(data));
-```
-
-```python
-# Backend
-@bp.route('/api/destinations', methods=['GET'])
-def get_destinations():
-    db = get_db()
-    dests = db.execute('SELECT * FROM destination').fetchall()
-    return jsonify([dict(d) for d in dests])
-```
-
-#### Update Destination
-```javascript
-// Frontend
-fetch(`/api/destinations/${id}`, {
-    method: 'PUT',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({
-        name: 'Updated Name',
-        description: 'New Description',
-        image_url: 'https://example.com/new.jpg'
-    })
-});
-```
-
-```python
-# Backend
-@bp.route('/api/destinations/<int:id>', methods=['PUT'])
-@login_required
-def update_destination(id):
-    # ... validation logic ...
-    db.execute('UPDATE destination SET name = ?, description = ? WHERE id = ?',
-               (data['name'], data['description'], id))
-    db.commit()
-    return jsonify({'message': 'Destination updated'}), 200
-```
-
-#### Delete Destination
-```javascript
-// Frontend
-fetch(`/api/destinations/${id}`, {method: 'DELETE'});
-```
-
-```python
-# Backend
-@bp.route('/api/destinations/<int:id>', methods=['DELETE'])
-@login_required
-def delete_destination(id):
-    db = get_db()
-    db.execute('DELETE FROM destination WHERE id = ?', (id,))
-    db.commit()
-    return jsonify({'message': 'Deleted'}), 200
-```
-
-### 2. Venues CRUD
-
-#### Create Venue
-```python
-# Backend
-@bp.route('/api/venues', methods=['POST'])
-@login_required
-def create_venue():
-    # ... validation ...
-    db.execute('INSERT INTO venue ... VALUES (...)')
-    return jsonify({'message': 'Venue created'}), 201
-```
-
-#### Read Venues
-```javascript
-// Frontend: Get all venues for a destination
-fetch('/api/venues?destination_id=1')
-```
-
-#### Update Venue
-```http
-PUT /api/venues/1
-Content-Type: application/json
-{ "name": "Grand Ballroom", "capacity": 300, ... }
-```
-
-#### Delete Venue
-```http
-DELETE /api/venues/1
-```
-
-### 3. Bookings CRUD
-
-Similar pattern to Destinations - see `routes.py` lines 85-150
+* **Username:** admin
+* **Password:** admin123
 
 ---
 
-## Testing
+## Attributions & Resources
 
-### Unit Tests
+During development, I referred to the following resources:
 
-Located in `tests/test_app.py` - Tests individual CRUD functions:
-
-```bash
-# Run unit tests
-pytest tests/test_app.py -v
-```
-
-**Test Coverage:**
-- ✅ `test_create_destination()` - Tests POST /api/destinations
-- ✅ `test_get_destinations()` - Tests GET /api/destinations
-- ✅ `test_create_booking_flow()` - Tests complete booking workflow
-
-### Integration Tests
-
-Located in `tests/test_integration.py` - Tests frontend-to-backend interaction:
-
-```bash
-# Run integration tests
-pytest tests/test_integration.py -v
-```
-
-**Integration Test:**
-- ✅ Frontend → API → Database flow
-- ✅ Validates data persistence
-- ✅ Tests API response formats
-
-### Running All Tests
-```bash
-pytest tests/ -v
-```
+* **Flask Documentation:** For the Application Factory pattern and Blueprint structure.
+* **Bootstrap 5 Documentation:** For responsive layout and UI components such as cards and modals.
+* **SQLite Documentation:** For database design and queries.
+* **Google Fonts:** Used Playfair Display and Lato for typography.
 
 ---
 
-## API Documentation
+## Generative AI Declaration
 
-### Base URL
-```
-http://127.0.0.1:5000
-```
+**AI‑Assisted Idea Generation and Structuring (Level 2/3)**
 
-### Endpoints
+I used generative AI tools to support development in the following ways:
 
-| Method | Endpoint | Auth Required | Description |
-|--------|----------|---------------|-------------|
-| GET | `/api/destinations` | No | Get all destinations |
-| POST | `/api/destinations` | Yes (Admin) | Create destination |
-| PUT | `/api/destinations/<id>` | Yes (Admin) | Update destination |
-| DELETE | `/api/destinations/<id>` | Yes (Admin) | Delete destination |
-| GET | `/api/venues` | No | Get all venues |
-| GET | `/api/venues?destination_id=<id>` | No | Get venues by destination |
-| POST | `/api/venues` | Yes (Admin) | Create venue |
-| PUT | `/api/venues/<id>` | Yes (Admin) | Update venue |
-| DELETE | `/api/venues/<id>` | Yes (Admin) | Delete venue |
-| GET | `/api/bookings` | Yes | Get bookings |
-| POST | `/api/bookings` | Yes | Create booking |
-| PATCH | `/api/bookings/<id>` | Yes (Admin) | Update booking status |
-| DELETE | `/api/bookings/<id>` | Yes (Admin) | Delete booking |
+* Debugging specific errors (e.g., "Unsupported Media Type" issues in Fetch API calls).
+* Refactoring the project structure into a modular Blueprint‑based Flask application.
+* Generating boilerplate unit test structures and pytest fixtures.
 
-### Example API Requests
-
-#### Create Booking
-```http
-POST /api/bookings
-Content-Type: application/json
-
-{
-    "customer_name": "John Doe",
-    "customer_email": "john@example.com",
-    "destination_id": 1,
-    "venue_id": 2,
-    "booking_date": "2025-06-15"
-}
-```
-
-**Response:**
-```json
-{
-    "message": "Booking created"
-}
-```
+All AI‑generated suggestions were critically reviewed, tested, and manually integrated by me. Core business logic, including availability checking and role‑based access control, was implemented and verified to meet the project requirements.
 
 ---
 
-## Technology Stack
-
-### Backend
-- **Flask 3.1.2** - Web framework
-- **SQLite** - Database
-- **Werkzeug** - Password hashing & security
-- **Python 3.13** - Programming language
-
-### Frontend
-- **HTML5** - Structure
-- **Vanilla JavaScript** - Logic (fetch API)
-- **CSS3** - Styling (Bootstrap 5)
-
-### Testing
-- **pytest 9.0.2** - Testing framework
-
-### Development Tools
-- **Git/GitHub** - Version control
-- **VS Code** - IDE
-- **Virtual Environment** - Dependency isolation
-
----
-
-## Project Structure
-
-```
-eternaal/
-├── app.py                  # Application entry point
-├── requirements.txt        # Python dependencies
-├── README.md              # This file
-├── .gitignore             # Git ignore rules
-│
-├── eternaal/              # Main application package
-│   ├── __init__.py        # App factory
-│   ├── auth.py            # Authentication logic
-│   ├── db.py              # Database operations
-│   ├── routes.py          # API endpoints
-│   ├── schema.sql         # Database schema
-│   │
-│   ├── templates/         # HTML templates
-│   │   ├── base.html
-│   │   ├── index.html     # Public homepage
-│   │   ├── admin.html     # Admin dashboard
-│   │   └── login.html     # Login page
-│   │
-│   └── static/            # Static files
-│       ├── css/
-│       │   └── style.css
-│       └── js/
-│           └── app.js     # Frontend JavaScript
-│
-├── tests/                 # Test files
-│   ├── test_app.py        # Unit tests
-│   └── test_integration.py # Integration tests
-│
-├── instance/              # Instance-specific files
-│   └── eternaal.sqlite    # SQLite database
-│
-└── venv/                  # Virtual environment (not in git)
-```
-
----
-
-## Database Schema
-
-### Tables
-
-#### 1. `user`
-```sql
-CREATE TABLE user (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    username TEXT UNIQUE NOT NULL,
-    password TEXT NOT NULL,
-    role TEXT NOT NULL DEFAULT 'customer'
-);
-```
-
-#### 2. `destination`
-```sql
-CREATE TABLE destination (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT UNIQUE NOT NULL,
-    description TEXT,
-    image_url TEXT,
-    availability INTEGER DEFAULT 1
-);
-```
-
-#### 3. `venue`
-```sql
-CREATE TABLE venue (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    destination_id INTEGER NOT NULL,
-    name TEXT NOT NULL,
-    capacity INTEGER,
-    price REAL,
-    availability INTEGER DEFAULT 1,
-    FOREIGN KEY (destination_id) REFERENCES destination(id)
-);
-```
-
-#### 4. `booking`
-```sql
-CREATE TABLE booking (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    customer_name TEXT NOT NULL,
-    customer_email TEXT,
-    destination_id INTEGER NOT NULL,
-    venue_id INTEGER NOT NULL,
-    booking_date TEXT NOT NULL,
-    status TEXT DEFAULT 'pending',
-    FOREIGN KEY (destination_id) REFERENCES destination(id),
-    FOREIGN KEY (venue_id) REFERENCES venue(id)
-);
-
-
-
-
-
+*Date: 14 December 2025*
 
