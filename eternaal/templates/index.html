@@ -1,110 +1,118 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>Eternal</title>
 
     <!-- Styles -->
-    <link rel="stylesheet"
-          href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 
 <body>
 
-<header>
-    <h1>Eternal</h1>
-    <nav>
-        {% if g.user %}
+    <header>
+        <h1>Eternal</h1>
+        <nav>
+            {% if g.user %}
             <span>Welcome, {{ g.user.username }}</span> |
-            <a href="{{ url_for('logout') }}">Logout</a>
+            <a href="{{ url_for('auth.logout') }}">Logout</a>
             {% if g.user.role == 'admin' %}
-                | <a href="{{ url_for('admin') }}">Admin Panel</a>
+            | <a href="{{ url_for('routes.admin') }}">Admin Panel</a>
             {% endif %}
-        {% else %}
-            <a href="{{ url_for('login') }}">Login</a> |
-            <a href="{{ url_for('register') }}">Register</a>
-        {% endif %}
-    </nav>
-</header>
+            {% else %}
+            <a href="{{ url_for('auth.login') }}">Login</a> |
+            <a href="{{ url_for('auth.register') }}">Register</a>
+            {% endif %}
+        </nav>
+    </header>
 
-<div class="container">
+    <div class="container">
 
-    <!-- Global Alerts -->
-    <div id="alert-placeholder"></div>
+        <!-- Global Alerts -->
+        <div id="alert-placeholder"></div>
 
-    <!-- ================= DESTINATIONS ================= -->
-    <section id="destinations-section">
-        <h2>Our Destinations</h2>
-        <div id="destinations-list">
-            <!-- JavaScript loads destinations here -->
-        </div>
-    </section>
+        <!-- ================= DESTINATIONS ================= -->
+        <section id="destinations-section">
+            <h2>Our Destinations</h2>
+            <div id="destinations-list">
+                <!-- JavaScript loads destinations here -->
+            </div>
+        </section>
 
-    <!-- ================= VENUES ================= -->
-    <section id="venues-section" class="hidden">
-        <h2>
-            Venues in <span id="selected-destination-name"></span>
-        </h2>
+        <!-- ================= VENUES ================= -->
+        <section id="venues-section" class="hidden">
+            <h2>
+                Venues in <span id="selected-destination-name"></span>
+            </h2>
 
-        <div style="margin-bottom:20px;">
-            <button type="button"
-                    onclick="
+            <div style="margin-bottom:20px;">
+                <button type="button" onclick="
                         document.getElementById('venues-section').style.display='none';
                         document.getElementById('destinations-section').scrollIntoView();
                     ">
-                Back to Destinations
-            </button>
-        </div>
+                    Back to Destinations
+                </button>
+            </div>
 
-        <div id="venues-list">
-            <!-- JavaScript loads venues here -->
-        </div>
-    </section>
+            <div id="venues-list">
+                <!-- JavaScript loads venues here -->
+            </div>
+        </section>
 
-    <!-- ================= BOOKING ================= -->
-    <section id="booking-section" class="hidden">
-        <h3>Request a Booking</h3>
+        <!-- ================= BOOKING ================= -->
+        <section id="booking-section" class="hidden">
+            <h3>Request a Booking</h3>
 
-        <p>
-            <strong>Venue:</strong>
-            <span id="book-venue-name-display"></span>
-        </p>
+            <p>
+                <strong>Venue:</strong>
+                <span id="book-venue-name-display"></span>
+            </p>
 
-        <p>
-            <strong>Price:</strong>
-            <span id="book-venue-price-display"></span>
-        </p>
+            <p>
+                <strong>Price:</strong>
+                <span id="book-venue-price-display"></span>
+            </p>
 
-        <form id="booking-form" style="max-width:500px;">
-            <input type="hidden" id="book-dest-id">
-            <input type="hidden" id="book-venue-id">
+            <form id="booking-form" style="max-width:500px;">
+                <input type="hidden" id="book-dest-id">
+                <input type="hidden" id="book-venue-id">
 
-            <label>Your Name:</label>
-            <input type="text" id="book-customer-name" required>
+                <label>Your Name:</label>
+                <input type="text" id="book-customer-name" required value="{{ g.user.username if g.user else '' }}">
 
-            <label>Your Email:</label>
-            <input type="email" id="book-customer-email" required>
+                <label>Your Email:</label>
+                <input type="email" id="book-customer-email" required>
 
-            <label>Wedding Date:</label>
-            <input type="date" id="book-date" required>
+                <label>Wedding Date:</label>
+                <input type="date" id="book-date" required>
 
-            <button type="submit">Submit Request</button>
-            <button type="button"
-                    onclick="document.getElementById('booking-section').style.display='none'"
+                <button type="submit">Submit Request</button>
+                <button type="button" onclick="document.getElementById('booking-section').style.display='none'"
                     style="background-color:#7f8c8d;">
-                Cancel
-            </button>
-        </form>
-    </section>
+                    Cancel
+                </button>
+            </form>
+        </section>
 
-</div>
+    </div>
 
-<footer>
-    &copy; 2025 Eternal. All rights reserved.
-</footer>
+    <footer>
+        &copy; 2025 Eternal. All rights reserved.
+    </footer>
 
-<!-- Scripts -->
-<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+    <!-- Scripts -->
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+    <script>
+        // Initialize public view
+        document.addEventListener('DOMContentLoaded', () => {
+            if (document.getElementById('destinations-list')) {
+                loadDestinations();
+                setupBookingForm();
+            }
+        });
+    </script>
 
 </body>
+
 </html>

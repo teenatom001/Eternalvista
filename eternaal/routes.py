@@ -21,8 +21,8 @@ def dashboard():
     """User dashboard - shows admin or user view based on role"""
     if g.user['role'] == 'admin':
         return redirect(url_for('routes.admin'))
-    # For customers, show their bookings
-    return render_template('user/dashboard.html')
+    # For customers, redirect to index or show a simple message
+    return render_template('index.html')
 
 # --- API Routes ---
 

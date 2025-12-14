@@ -3,89 +3,74 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EternalVista | Destination Weddings</title>
+    <title>Eternal</title>
+    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <!-- Fonts -->
     <link
-        href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Lato:wght@300;400;700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Lato:wght@300;400;700&display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
 </head>
 
-<body>
-    <nav class="navbar navbar-expand-lg fixed-top navbar-light bg-light shadow-sm">
+<body class="d-flex flex-column min-vh-100">
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container">
-            <a class="navbar-brand font-playfair" href="index.html">
-                <i class="bi bi-heart-fill text-gold me-2"></i>EternalVista
-            </a>
+            <a class="navbar-brand font-playfair" href="{{ url_for('routes.index') }}">Eternal</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto align-items-center">
-                    <li class="nav-item">
-                        <a class="nav-link" href="index.html">Home</a>
+                <ul class="navbar-nav ms-auto">
+                    {% if g.user %}
+                    <li class="nav-item"><span class="nav-link text-warning">Welcome, {{ g.user.username }}</span></li>
+                    {% if g.user.role == 'admin' %}
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('routes.admin') }}">Admin Panel</a></li>
+                    {% else %}
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('routes.dashboard') }}">My Dashboard</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="index.html#destinations">Destinations</a>
-                    </li>
-                   
-                    <li class="nav-item ms-2">
-                        <a class="nav-link" href="login.html">Login</a>
-                    </li>
-                    <li class="nav-item ms-2">
-                        <a class="btn btn-gold btn-sm text-dark" href="register.html">Start Planning</a>
-                    </li>
+                    {% endif %}
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('auth.logout') }}">Logout</a></li>
+                    {% else %}
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('auth.login') }}">Login</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('auth.register') }}">Register</a></li>
+                    {% endif %}
                 </ul>
             </div>
         </div>
     </nav>
 
-    <div class="main-content">
-       
-        <div class="container mt-4 pt-5">
-          
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-          
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    <!-- Main Content -->
+    <main class="flex-grow-1">
+        <!-- Flash Messages -->
+        <div class="container mt-3">
+            {% for message in get_flashed_messages() %}
+            <div class="alert alert-info alert-dismissible fade show">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
+            {% endfor %}
         </div>
 
-      
-        <div id="content">
-        
-        </div>
-    </div>
+        {% block content %}{% endblock %}
+    </main>
 
-    <footer class="bg-dark text-white py-5 mt-5">
+    <!-- Footer -->
+    <footer class="bg-dark text-white text-center py-3 mt-auto">
         <div class="container">
-            <div class="row">
-                <div class="col-md-4 mb-4">
-                    <h5 class="font-playfair">EternalVista</h5>
-                    <p class="text-light small">Helping you pledge your vows in heaven.</p>
-                </div>
-                <div class="col-md-4 mb-4">
-                    <h6>Quick Links</h6>
-                    <ul class="list-unstyled text-light small">
-                        <li><a href="#" class="text-decoration-none text-light">Destinations</a></li>
-                        <li><a href="#" class="text-decoration-none text-light">Vendors</a></li>
-                        <li><a href="#" class="text-decoration-none text-light">About Us</a></li>
-                    </ul>
-                </div>
-                <div class="col-md-4">
-                    <h6>Contact</h6>
-                    <p class="text-light small">info@eternalvista.com<br>Dublin, Ireland</p>
-                </div>
-            </div>
-            <div class="text-center pt-4 border-top border-secondary text-light small">
-                &copy; 2025 EternalVista. Destination Weddings.
-            </div>
+            <p class="mb-0">&copy; 2025 Eternal. All rights reserved.</p>
         </div>
     </footer>
 
+    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="js/app.js"></script>
+    <!-- App JS -->
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+    {% block scripts %}{% endblock %}
 </body>
 
 </html>

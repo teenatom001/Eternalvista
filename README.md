@@ -1,46 +1,12 @@
-# Assignment Cover Sheet
 
-**Student Name and Number:** [YOUR NAME] - [YOUR STUDENT NUMBER]
 
-**Programme:** [YOUR PROGRAMME, e.g., HDip Software Development]
 
-**Lecturer Name:** Paul Laird
 
-**Module/Subject Title:** Programming for Information Systems (B9IS123)
 
-**Assignment Title:** Project 2 - EternalVista Information System
-
----
-
-### Declaration
-
-By submitting this assignment, I am confirming that:
-- ✅ This assignment is all my own work;
-- ✅ Any sources used have been referenced;
-- ✅ I have followed the Generative AI instructions/scale set out in the Assignment Brief (Level 4: AI Task Completion, Human Evaluation);
-- ✅ I have read the College rules regarding academic integrity in the QAH Part B Section 3, and the Generative AI Guidelines, and understand that penalties will be applied accordingly if work is found not to be my/our own.
-- ✅ I understand that all work submitted may be code-matched report to show any similarities with other work.
-
----
-
-## Table of Contents
-
-1. [Project Overview](#project-overview)
-2. [System Requirements](#system-requirements)
-3. [Architecture](#architecture)
-4. [Installation & Setup](#installation--setup)
-5. [CRUD Operations](#crud-operations)
-6. [Testing](#testing)
-7. [API Documentation](#api-documentation)
-8. [Technology Stack](#technology-stack)
-9. [Project Structure](#project-structure)
-10. [Attributions](#attributions)
-
----
 
 ## Project Overview
 
-### Organization: EternalVista Wedding Destinations
+### Organization: EternalVista
 
 **Business Context:**  
 EternalVista is a small wedding destination planning company that specializes in organizing destination weddings across Ireland. The company manages multiple wedding destinations (Dublin, Wicklow, Cork) and provides various wedding venues at each location.
@@ -549,14 +515,7 @@ CREATE TABLE booking (
    - Usage: Password hashing and security utilities
    - Integration: Used in auth.py for secure password storage
 
-### AI Assistance
 
-This project was developed with assistance from **Google Gemini AI** (Generative AI Scale Level 4):
-- AI was used to generate boilerplate code structures
-- AI assisted with debugging and problem-solving
-- AI helped with documentation formatting
-- All AI-generated content was reviewed, tested, and modified by the student
-- Student wrote integration logic and customized all code to meet specific requirements
 
 ### Code Attribution
 
@@ -567,11 +526,8 @@ This project was developed with assistance from **Google Gemini AI** (Generative
 
 ---
 
-## GitHub Repository
 
-**Repository URL:** https://github.com/[YOUR-USERNAME]/eternaal
 
-**Commit History:** Available in repository showing incremental development
 
 ---
 

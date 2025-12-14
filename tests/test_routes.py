@@ -1,20 +1,29 @@
+import os
+import tempfile
 import pytest
 from eternaal import create_app
-from eternaal.db import get_db
+from eternaal.db import get_db, init_db
 
 @pytest.fixture
 def app():
-    # Create app with testing config
-    app = create_app({"TESTING": True, "SECRET_KEY": "test", "DATABASE": ":memory:"})
-    # Initialize the database schema (assuming a function init_db exists)
+    # Create a temporary file for the database
+    db_fd, db_path = tempfile.mkstemp()
+    
+    app = create_app({
+        "TESTING": True, 
+        "SECRET_KEY": "test", 
+        "DATABASE": db_path
+    })
+    
+    # Initialize the database
     with app.app_context():
-        from eternaal import db
-        db.init_app(app)
-        # Create tables – you may need to import schema creation here
-        # For simplicity, assume a function init_db() that creates tables
-        # If not present, you can execute raw SQL to create minimal tables
-        # Here we just pass (tests may fail if DB not set up)
-    return app
+        init_db()
+        
+    yield app
+    
+    # Cleanup
+    os.close(db_fd)
+    os.unlink(db_path)
 
 @pytest.fixture
 def client(app):
@@ -33,12 +42,13 @@ def test_admin_access_requires_login(client):
     assert resp.status_code in (302, 401, 403)
 
 def test_login_and_logout(client, app):
-    # Insert a test user directly into the in‑memory DB
+    from werkzeug.security import generate_password_hash
+    # Insert a test user directly into the temporary DB
     with app.app_context():
         db = get_db()
         db.execute(
             "INSERT INTO user (username, password, role) VALUES (?, ?, ?)",
-            ("testadmin", "$(python -c 'import werkzeug.security, sys; print(workzeug.security.generate_password_hash(\"password\"))')", "admin")
+            ("testadmin", generate_password_hash("password"), "admin")
         )
         db.commit()
     # Login via POST JSON

@@ -1,60 +1,45 @@
 import sqlite3
-import os
+from eternaal.db import get_db
+from eternaal import create_app
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DATABASE = os.path.join(BASE_DIR, 'instance', 'eternaal.sqlite')
+app = create_app()
 
-def seed_dublin():
-    conn = sqlite3.connect(DATABASE)
-    cursor = conn.cursor()
+def seed():
+    with app.app_context():
+        db = get_db()
+        
+        # Check if we already have data
+        if db.execute('SELECT id FROM destination').fetchone():
+            print("Data already exists.")
+            return
 
-    print("Seeding Dublin, Ireland...")
+        print("Seeding Dublin data...")
+        
+        # 1. Create Destination: Dublin
+        # We'll treat this as the main "Destination" entry for the Dublin setup
+        cur = db.execute(
+            'INSERT INTO destination (name, description, image_url, availability) VALUES (?, ?, ?, ?)',
+            ('Dublin, Ireland', 'Historic streets, lively pubs, and ancient castles.', 'https://images.unsplash.com/photo-1549918864-48ac978761a4?auto=format&fit=crop&w=800&q=80', 1)
+        )
+        dublin_id = cur.lastrowid
 
-    # 1. Insert Destination
-    cursor.execute('''
-        INSERT INTO destination (name, description, image_url, availability)
-        VALUES (?, ?, ?, ?)
-    ''', (
-        'Dublin, Ireland',
-        'Experience the warmth and history of the Fair City. From historic castles to lively city center luxury, Dublin offers a perfect blend of tradition and modern elegance for your special day.',
-        'https://images.unsplash.com/photo-1549918864-48ac978761a4?auto=format&fit=crop&w=1950&q=80',
-        1
-    ))
-    dest_id = cursor.lastrowid
-    print(f"Added Destination: Dublin (ID: {dest_id})")
+        # 2. Venues in Dublin
+        venues = [
+            # Name, Capacity, Price, Image
+            ('Dublin Castle', 150, 2500.0, 'https://images.unsplash.com/photo-1590059390247-410a563ce2f9?auto=format&fit=crop&w=800&q=80'),
+            ('Trinity College Library', 50, 1200.0, 'https://images.unsplash.com/photo-1547402633-40c21356f10c?auto=format&fit=crop&w=800&q=80'),
+            ('Guinness Storehouse (Gravity Bar)', 200, 3000.0, 'https://images.unsplash.com/photo-1618428383389-c4398325a22d?auto=format&fit=crop&w=800&q=80'),
+            ('St. Patrick\'s Cathedral', 300, 1800.0, 'https://images.unsplash.com/photo-1571665673059-e31d41a5477c?auto=format&fit=crop&w=800&q=80'),
+        ]
 
-    # 2. Insert Venues
-    venues = [
-        {
-            'name': 'The Shelbourne',
-            'capacity': 300,
-            'price': 5000.00,
-            'image_url': 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1950&q=80'
-        },
-        {
-            'name': 'Dublin Castle',
-            'capacity': 150,
-            'price': 3500.00,
-            'image_url': 'https://images.unsplash.com/photo-1533929736472-11199a9e3478?auto=format&fit=crop&w=1950&q=80'
-        },
-        {
-            'name': 'Cliff at Lyons',
-            'capacity': 200,
-            'price': 4200.00,
-            'image_url': 'https://images.unsplash.com/photo-1464207687429-7505649dae38?auto=format&fit=crop&w=1950&q=80'
-        }
-    ]
+        for v in venues:
+            db.execute(
+                'INSERT INTO venue (destination_id, name, capacity, price, image_url, availability) VALUES (?, ?, ?, ?, ?, ?)',
+                (dublin_id, v[0], v[1], v[2], v[3], 1)
+            )
 
-    for v in venues:
-        cursor.execute('''
-            INSERT INTO venue (destination_id, name, capacity, price, image_url, availability)
-            VALUES (?, ?, ?, ?, ?, ?)
-        ''', (dest_id, v['name'], v['capacity'], v['price'], v['image_url'], 1))
-        print(f"  - Added Venue: {v['name']}")
-
-    conn.commit()
-    conn.close()
-    print("Done!")
+        db.commit()
+        print("Seeding complete!")
 
 if __name__ == '__main__':
-    seed_dublin()
+    seed()
