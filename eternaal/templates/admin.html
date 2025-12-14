@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>Admin Dashboard</title>
 
-    
+    <!-- Styles -->
     <link rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet"
@@ -16,20 +16,20 @@
 <header>
     <h1>Eternal</h1>
     <nav>
-       
-            <span></span> |
-        
-        <a href="">View Site</a> |
-        <a href="">Log Out</a>
+        {% if g.user %}
+            <span>User: {{ g.user.username }}</span> |
+        {% endif %}
+        <a href="{{ url_for('index') }}">View Site</a> |
+        <a href="{{ url_for('logout') }}">Log Out</a>
     </nav>
 </header>
 
 <div class="container">
 
-    
+    <!-- Global Alerts -->
     <div id="admin-alert-placeholder"></div>
 
-  
+    <!-- ================= BOOKINGS ================= -->
     <section id="bookings">
         <div style="display:flex; justify-content:space-between; align-items:center;">
             <h2>Manage Bookings</h2>
@@ -66,10 +66,11 @@
         </table>
     </section>
 
+    <!-- ================= DESTINATIONS ================= -->
     <section id="destinations">
         <h2>Manage Destinations</h2>
 
-    
+        <!-- Add Destination -->
         <div style="background-color:#f0f0f0; padding:15px; margin-bottom:20px;">
             <h3>Add New Destination</h3>
             <form id="add-destination-form" enctype="multipart/form-data">
@@ -93,10 +94,10 @@
             </form>
         </div>
 
-       
+        <!-- Destination List -->
         <div id="admin-dest-list"></div>
 
-      
+        <!-- Edit Destination -->
         <div id="edit-dest-container" class="hidden"
              style="border:2px solid #2c3e50; padding:15px; margin-top:20px;">
             <h3>Edit Destination</h3>
@@ -127,11 +128,11 @@
         </div>
     </section>
 
-   
+    <!-- ================= VENUES ================= -->
     <section id="venues">
         <h2>Manage Venues</h2>
 
-      
+        <!-- Add Venue -->
         <div style="background-color:#f0f0f0; padding:15px; margin-bottom:20px;">
             <h3>Add New Venue</h3>
             <form id="add-venue-form" enctype="multipart/form-data">
@@ -154,7 +155,7 @@
             </form>
         </div>
 
-        
+        <!-- Venue Filter -->
         <div style="margin-bottom:15px;">
             <label>Filter by Destination:</label>
             <select id="admin-venue-filter-dest" style="width:auto;">
@@ -163,10 +164,10 @@
             <button type="button" onclick="loadAdminVenues()">Filter</button>
         </div>
 
-       
+        <!-- Venue List -->
         <div id="admin-venue-list"></div>
 
-       
+        <!-- Edit Venue -->
         <div id="edit-venue-container" class="hidden"
              style="border:2px solid #2c3e50; padding:15px; margin-top:20px;">
             <h3>Edit Venue</h3>
@@ -207,7 +208,7 @@
     &copy; 2025 Eternal. All rights reserved.
 </footer>
 
-
+<!-- Scripts -->
 <script src="{{ url_for('static', filename='js/app.js') }}"></script>
 
 </body>
