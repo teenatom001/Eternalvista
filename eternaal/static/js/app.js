@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
         setupAdminForms();
         loadAdminVenues();
         loadAdminBookings();
+        loadAdminUsers(); // Add this line
     } else if (document.getElementById('destinations-list')) {
         // Index Page
         loadDestinations();
@@ -170,6 +171,48 @@ async function deleteBooking(id) {
     if (confirm('Delete this booking?')) {
         await apiCall(`/api/bookings/${id}`, 'DELETE');
         loadAdminBookings();
+    }
+}
+
+// --- USER MANAGEMENT ---
+async function loadAdminUsers() {
+    const tableBody = document.getElementById('users-table-body');
+    if (!tableBody) return;
+
+    tableBody.innerHTML = '<tr><td colspan="4">Loading...</td></tr>';
+
+    try {
+        const users = await apiCall('/api/users');
+        tableBody.innerHTML = '';
+
+        users.forEach(u => {
+            tableBody.innerHTML += `
+                <tr>
+                    <td>${u.id}</td>
+                    <td>${u.username}</td>
+                    <td>${u.role}</td>
+                    <td>
+                        <button onclick="deleteUser(${u.id}, '${u.username}')" class="btn-delete" ${u.role === 'admin' ? 'disabled title="Cannot delete admin"' : ''}>
+                            <i class="fas fa-trash-alt"></i> Delete
+                        </button>
+                    </td>
+                </tr>
+            `;
+        });
+    } catch (e) {
+        tableBody.innerHTML = '<tr><td colspan="4">Error loading users</td></tr>';
+    }
+}
+
+async function deleteUser(id, username) {
+    if (confirm(`Are you sure you want to delete user "${username}"? This cannot be undone.`)) {
+        const res = await apiCall(`/api/users/${id}`, 'DELETE');
+        if (res.message) {
+            alert(res.message);
+            loadAdminUsers();
+        } else {
+            alert('Error: ' + (res.error || 'Unknown error'));
+        }
     }
 }
 

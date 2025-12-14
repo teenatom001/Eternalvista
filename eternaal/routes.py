@@ -248,6 +248,31 @@ def update_booking(id):
     db.commit()
     return jsonify({'message': 'Booking updated'}), 200
 
+@bp.route('/api/users', methods=['GET'])
+@login_required
+def get_users():
+    if g.user['role'] != 'admin':
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    db = get_db()
+    users = db.execute('SELECT id, username, role FROM user').fetchall()
+    return jsonify([dict(u) for u in users])
+
+@bp.route('/api/users/<int:id>', methods=['DELETE'])
+@login_required
+def delete_user(id):
+    if g.user['role'] != 'admin':
+        return jsonify({'error': 'Unauthorized'}), 401
+        
+    db = get_db()
+    # Prevent admin from deleting themselves
+    if id == g.user['id']:
+        return jsonify({'error': 'Cannot delete yourself'}), 400
+
+    db.execute('DELETE FROM user WHERE id = ?', (id,))
+    db.commit()
+    return jsonify({'message': 'User deleted'}), 200
+
 @bp.route('/logout')
 @login_required
 def logout():

@@ -1,215 +1,233 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>Admin Dashboard</title>
 
     <!-- Styles -->
-    <link rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet"
-          href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 
 <body>
 
-<header>
-    <h1>Eternal</h1>
-    <nav>
-        {% if g.user %}
+    <header>
+        <h1>Eternal</h1>
+        <nav>
+            {% if g.user %}
             <span>User: {{ g.user.username }}</span> |
-        {% endif %}
-        <a href="{{ url_for('index') }}">View Site</a> |
-        <a href="{{ url_for('logout') }}">Log Out</a>
-    </nav>
-</header>
+            {% endif %}
+            <a href="{{ url_for('index') }}">View Site</a> |
+            <a href="{{ url_for('logout') }}">Log Out</a>
+        </nav>
+    </header>
 
-<div class="container">
+    <div class="container">
 
-    <!-- Global Alerts -->
-    <div id="admin-alert-placeholder"></div>
+        <!-- Global Alerts -->
+        <div id="admin-alert-placeholder"></div>
 
-    <!-- ================= BOOKINGS ================= -->
-    <section id="bookings">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-            <h2>Manage Bookings</h2>
-            <button type="button" onclick="loadAdminBookings()">Refresh List</button>
-        </div>
+        <!-- ================= BOOKINGS ================= -->
+        <section id="bookings">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <h2>Manage Bookings</h2>
+                <button type="button" onclick="loadAdminBookings()">Refresh List</button>
+            </div>
 
-        <h3>Pending Requests</h3>
-        <table>
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Customer</th>
-                    <th>Venue</th>
-                    <th>Date</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody id="bookings-pending-body"></tbody>
-        </table>
+            <h3>Pending Requests</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Customer</th>
+                        <th>Venue</th>
+                        <th>Date</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="bookings-pending-body"></tbody>
+            </table>
 
-        <h3>Booking History</h3>
-        <table>
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Customer</th>
-                    <th>Venue</th>
-                    <th>Date</th>
-                    <th>Status</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody id="bookings-history-body"></tbody>
-        </table>
-    </section>
+            <h3>Booking History</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Customer</th>
+                        <th>Venue</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="bookings-history-body"></tbody>
+            </table>
+        </section>
 
-    <!-- ================= DESTINATIONS ================= -->
-    <section id="destinations">
-        <h2>Manage Destinations</h2>
+        <!-- ================= USERS ================= -->
+        <section id="users">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <h2>Manage Users</h2>
+                <button type="button" onclick="loadAdminUsers()">Refresh List</button>
+            </div>
 
-        <!-- Add Destination -->
-        <div style="background-color:#f0f0f0; padding:15px; margin-bottom:20px;">
-            <h3>Add New Destination</h3>
-            <form id="add-destination-form" enctype="multipart/form-data">
-                <label>Name:</label>
-                <input type="text" id="new-dest-name" required>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Username</th>
+                        <th>Role</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="users-table-body"></tbody>
+            </table>
+        </section>
 
-                <label>Description:</label>
-                <textarea id="new-dest-desc" required></textarea>
+        <!-- ================= DESTINATIONS ================= -->
+        <section id="destinations">
+            <h2>Manage Destinations</h2>
 
-                <label>Image:</label>
-                <input type="file" id="new-dest-img">
+            <!-- Add Destination -->
+            <div style="background-color:#f0f0f0; padding:15px; margin-bottom:20px;">
+                <h3>Add New Destination</h3>
+                <form id="add-destination-form" enctype="multipart/form-data">
+                    <label>Name:</label>
+                    <input type="text" id="new-dest-name" required>
 
-                <div style="margin:10px 0;">
-                    <input type="checkbox" id="new-dest-avail" checked>
-                    <label for="new-dest-avail" style="font-weight:normal;">
-                        Available for booking
-                    </label>
-                </div>
+                    <label>Description:</label>
+                    <textarea id="new-dest-desc" required></textarea>
 
-                <button type="submit">Add Destination</button>
-            </form>
-        </div>
+                    <label>Image:</label>
+                    <input type="file" id="new-dest-img">
 
-        <!-- Destination List -->
-        <div id="admin-dest-list"></div>
+                    <div style="margin:10px 0;">
+                        <input type="checkbox" id="new-dest-avail" checked>
+                        <label for="new-dest-avail" style="font-weight:normal;">
+                            Available for booking
+                        </label>
+                    </div>
 
-        <!-- Edit Destination -->
-        <div id="edit-dest-container" class="hidden"
-             style="border:2px solid #2c3e50; padding:15px; margin-top:20px;">
-            <h3>Edit Destination</h3>
-            <form id="edit-dest-form" enctype="multipart/form-data">
-                <input type="hidden" id="edit-dest-id">
+                    <button type="submit">Add Destination</button>
+                </form>
+            </div>
 
-                <label>Name:</label>
-                <input type="text" id="edit-dest-name" required>
+            <!-- Destination List -->
+            <div id="admin-dest-list"></div>
 
-                <label>Description:</label>
-                <textarea id="edit-dest-desc" required></textarea>
+            <!-- Edit Destination -->
+            <div id="edit-dest-container" class="hidden"
+                style="border:2px solid #2c3e50; padding:15px; margin-top:20px;">
+                <h3>Edit Destination</h3>
+                <form id="edit-dest-form" enctype="multipart/form-data">
+                    <input type="hidden" id="edit-dest-id">
 
-                <label>Image:</label>
-                <input type="file" id="edit-dest-img">
+                    <label>Name:</label>
+                    <input type="text" id="edit-dest-name" required>
 
-                <div style="margin:10px 0;">
-                    <input type="checkbox" id="edit-dest-avail">
-                    <label style="font-weight:normal;">Available</label>
-                </div>
+                    <label>Description:</label>
+                    <textarea id="edit-dest-desc" required></textarea>
 
-                <button type="submit">Save Changes</button>
-                <button type="button"
-                        onclick="document.getElementById('edit-dest-container').style.display='none'"
+                    <label>Image:</label>
+                    <input type="file" id="edit-dest-img">
+
+                    <div style="margin:10px 0;">
+                        <input type="checkbox" id="edit-dest-avail">
+                        <label style="font-weight:normal;">Available</label>
+                    </div>
+
+                    <button type="submit">Save Changes</button>
+                    <button type="button" onclick="document.getElementById('edit-dest-container').style.display='none'"
                         style="background-color:#7f8c8d;">
-                    Cancel
-                </button>
-            </form>
-        </div>
-    </section>
+                        Cancel
+                    </button>
+                </form>
+            </div>
+        </section>
 
-    <!-- ================= VENUES ================= -->
-    <section id="venues">
-        <h2>Manage Venues</h2>
+        <!-- ================= VENUES ================= -->
+        <section id="venues">
+            <h2>Manage Venues</h2>
 
-        <!-- Add Venue -->
-        <div style="background-color:#f0f0f0; padding:15px; margin-bottom:20px;">
-            <h3>Add New Venue</h3>
-            <form id="add-venue-form" enctype="multipart/form-data">
-                <label>Select Destination:</label>
-                <select id="new-venue-dest-select" required></select>
+            <!-- Add Venue -->
+            <div style="background-color:#f0f0f0; padding:15px; margin-bottom:20px;">
+                <h3>Add New Venue</h3>
+                <form id="add-venue-form" enctype="multipart/form-data">
+                    <label>Select Destination:</label>
+                    <select id="new-venue-dest-select" required></select>
 
-                <label>Venue Name:</label>
-                <input type="text" id="new-venue-name" required>
+                    <label>Venue Name:</label>
+                    <input type="text" id="new-venue-name" required>
 
-                <label>Capacity:</label>
-                <input type="number" id="new-venue-capacity" required>
+                    <label>Capacity:</label>
+                    <input type="number" id="new-venue-capacity" required>
 
-                <label>Price:</label>
-                <input type="number" id="new-venue-price" required>
+                    <label>Price:</label>
+                    <input type="number" id="new-venue-price" required>
 
-                <label>Image:</label>
-                <input type="file" id="new-venue-img">
+                    <label>Image:</label>
+                    <input type="file" id="new-venue-img">
 
-                <button type="submit">Add Venue</button>
-            </form>
-        </div>
+                    <button type="submit">Add Venue</button>
+                </form>
+            </div>
 
-        <!-- Venue Filter -->
-        <div style="margin-bottom:15px;">
-            <label>Filter by Destination:</label>
-            <select id="admin-venue-filter-dest" style="width:auto;">
-                <option value="">All</option>
-            </select>
-            <button type="button" onclick="loadAdminVenues()">Filter</button>
-        </div>
+            <!-- Venue Filter -->
+            <div style="margin-bottom:15px;">
+                <label>Filter by Destination:</label>
+                <select id="admin-venue-filter-dest" style="width:auto;">
+                    <option value="">All</option>
+                </select>
+                <button type="button" onclick="loadAdminVenues()">Filter</button>
+            </div>
 
-        <!-- Venue List -->
-        <div id="admin-venue-list"></div>
+            <!-- Venue List -->
+            <div id="admin-venue-list"></div>
 
-        <!-- Edit Venue -->
-        <div id="edit-venue-container" class="hidden"
-             style="border:2px solid #2c3e50; padding:15px; margin-top:20px;">
-            <h3>Edit Venue</h3>
-            <form id="edit-venue-form" enctype="multipart/form-data">
-                <input type="hidden" id="edit-venue-id">
-                <input type="hidden" id="edit-venue-dest-id">
+            <!-- Edit Venue -->
+            <div id="edit-venue-container" class="hidden"
+                style="border:2px solid #2c3e50; padding:15px; margin-top:20px;">
+                <h3>Edit Venue</h3>
+                <form id="edit-venue-form" enctype="multipart/form-data">
+                    <input type="hidden" id="edit-venue-id">
+                    <input type="hidden" id="edit-venue-dest-id">
 
-                <label>Name:</label>
-                <input type="text" id="edit-venue-name" required>
+                    <label>Name:</label>
+                    <input type="text" id="edit-venue-name" required>
 
-                <label>Capacity:</label>
-                <input type="number" id="edit-venue-capacity" required>
+                    <label>Capacity:</label>
+                    <input type="number" id="edit-venue-capacity" required>
 
-                <label>Price:</label>
-                <input type="number" id="edit-venue-price" required>
+                    <label>Price:</label>
+                    <input type="number" id="edit-venue-price" required>
 
-                <label>Image:</label>
-                <input type="file" id="edit-venue-img">
+                    <label>Image:</label>
+                    <input type="file" id="edit-venue-img">
 
-                <div style="margin:10px 0;">
-                    <input type="checkbox" id="edit-venue-avail">
-                    <label style="font-weight:normal;">Available</label>
-                </div>
+                    <div style="margin:10px 0;">
+                        <input type="checkbox" id="edit-venue-avail">
+                        <label style="font-weight:normal;">Available</label>
+                    </div>
 
-                <button type="submit">Save Changes</button>
-                <button type="button"
-                        onclick="document.getElementById('edit-venue-container').style.display='none'"
+                    <button type="submit">Save Changes</button>
+                    <button type="button" onclick="document.getElementById('edit-venue-container').style.display='none'"
                         style="background-color:#7f8c8d;">
-                    Cancel
-                </button>
-            </form>
-        </div>
-    </section>
+                        Cancel
+                    </button>
+                </form>
+            </div>
+        </section>
 
-</div>
+    </div>
 
-<footer>
-    &copy; 2025 Eternal. All rights reserved.
-</footer>
+    <footer>
+        &copy; 2025 Eternal. All rights reserved.
+    </footer>
 
-<!-- Scripts -->
-<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+    <!-- Scripts -->
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
 
 </body>
+
 </html>
