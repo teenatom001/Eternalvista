@@ -33,6 +33,55 @@ def load_logged_in_user():
             'SELECT * FROM user WHERE id = ?', (user_id,)
         ).fetchone()
 
+# --- Register Route ---
+@bp.route('/register', methods=('GET', 'POST'))
+def register():
+    # Handles user registration.
+    # Supports both JSON (for API/fetch) and HTML Forms.
+    if request.method == 'POST':
+        # Check if data came as JSON (from fetch) or Form (from normal submit)
+        is_json = request.is_json
+        data = request.get_json() if is_json else request.form
+        
+        username = data.get('username')
+        password = data.get('password')
+        role = 'customer' # Default role
+        db = get_db()
+        error = None
+
+        # 1. Validation: Ensure fields are not empty
+        if not username:
+            error = 'Username is required.'
+        elif not password:
+            error = 'Password is required.'
+
+        # 2. Insert into Database if no error
+        if error is None:
+            try:
+                # Hash the password for security! Never store plain text passwords.
+                db.execute(
+                    'INSERT INTO user (username, password, role) VALUES (?, ?, ?)',
+                    (username, generate_password_hash(password), role)
+                )
+                db.commit()
+                
+                # Success response
+                if is_json:
+                    return jsonify({'message': 'Registration successful'}), 201
+                else:
+                    flash('Registration successful! Please login.')
+                    return redirect(url_for('auth.login'))
+            
+            except db.IntegrityError:
+                error = f"User {username} is already registered."
+        
+        # Error response
+        if is_json:
+            return jsonify({'error': error}), 400
+        else:
+            flash(error)
+
+    return render_template('register.html')
 
 # --- Login Route ---
 @bp.route('/login', methods=('GET', 'POST'))
@@ -83,3 +132,9 @@ def login():
 
     return render_template('login.html')
 
+# --- Logout Route ---
+@bp.route('/logout')
+def logout():
+    # Logs the user out by clearing the session.
+    session.clear()
+    return redirect(url_for('routes.index'))
