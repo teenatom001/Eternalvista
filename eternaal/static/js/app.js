@@ -34,6 +34,16 @@ function showAlert(msg) {
     alert(msg);
 }
 
+function showAdminAlert(msg, type = 'success') {
+    const placeholder = document.getElementById('admin-alert-placeholder');
+    if (placeholder) {
+        placeholder.innerHTML = `<div class="alert alert-${type}">${msg}</div>`;
+        setTimeout(() => placeholder.innerHTML = '', 3000);
+    } else {
+        alert(msg);
+    }
+}
+
 // --- CUSTOMER FUNCTIONS ---
 
 async function loadDestinations() {
@@ -208,14 +218,14 @@ async function updateBooking(id, status) {
     try {
         const res = await apiCall(`/api/bookings/${id}`, 'PATCH', { status }); // Changed PUT to PATCH to match routes.py
         if (res.message) {
-            alert('Booking updated to: ' + status);
+            showAdminAlert('Booking updated to: ' + status, 'success');
             loadAdminBookings();
         } else {
-            alert('Error updating booking: ' + (res.error || 'Unknown error'));
+            showAdminAlert('Error updating booking: ' + (res.error || 'Unknown error'), 'danger');
         }
     } catch (e) {
         console.error(e);
-        alert('Failed to communicate with server.');
+        showAdminAlert('Failed to communicate with server.', 'danger');
     }
 }
 

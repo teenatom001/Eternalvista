@@ -317,7 +317,7 @@ class TestBookingFlow:
             
             # Update booking status
             response = client.patch('/api/bookings/1', 
-                json={'status': 'accepted'},
+                json={'status': 'confirmed'},
                 content_type='application/json'
             )
             

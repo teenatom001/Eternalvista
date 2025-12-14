@@ -288,7 +288,7 @@ def update_booking(id):
 
     data = request.get_json()
     status = data.get('status')
-    if status not in ['pending', 'accepted', 'rejected', 'paid']:
+    if status not in ['pending', 'accepted', 'rejected', 'paid', 'confirmed', 'cancelled']:
          return jsonify({'error': 'Invalid status'}), 400
          
     db = get_db()
