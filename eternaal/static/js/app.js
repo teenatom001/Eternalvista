@@ -1,3 +1,4 @@
+// Initialize the app when the DOM is fully loaded
 document.addEventListener('DOMContentLoaded', () => {
     // Determine which page we are on and load relevant data
     if (document.getElementById('admin-dest-list')) {
@@ -13,6 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
+// Helper function to perform API calls (GET, POST, PUT, DELETE)
 // --- API HELPER ---
 async function apiCall(url, method = 'GET', body = null) {
     const options = { method };
@@ -27,100 +29,17 @@ async function apiCall(url, method = 'GET', body = null) {
 }
 
 // --- BASIC ALERT ---
+// Simple wrapper for alert messages (can be replaced with a nicer UI later)
 function showAlert(msg) {
     // Simple alert for beginner level
     alert(msg);
 }
 
-// --- CUSTOMER FUNCTIONS ---
 
-async function loadDestinations() {
-    const list = document.getElementById('destinations-list');
-    try {
-        const dests = await apiCall('/api/destinations');
-        list.innerHTML = '';
-        dests.forEach(d => {
-            const div = document.createElement('div');
-            div.className = 'item-card';
-            div.innerHTML = `
-                <h3>${d.name}</h3>
-                ${d.image_url ? `<img src="${d.image_url}" alt="Dest Image">` : ''}
-                <p>${d.description}</p>
-                <p>Status: <strong>${d.availability ? 'Available' : 'Unavailable'}</strong></p>
-                <button onclick="selectDestination(${d.id}, '${d.name}')" ${!d.availability ? 'disabled' : ''}>
-                    ${d.availability ? 'View Venues' : 'Unavailable'}
-                </button>
-            `;
-            list.appendChild(div);
-        });
-    } catch (e) { list.innerHTML = 'Error loading destinations'; }
-}
-
-async function selectDestination(id, name) {
-    document.getElementById('selected-destination-name').innerText = name;
-    document.getElementById('venues-section').style.display = 'block';
-    document.getElementById('venues-section').scrollIntoView();
-
-    const list = document.getElementById('venues-list');
-    list.innerHTML = 'Loading...';
-
-    try {
-        const venues = await apiCall(`/api/venues?destination_id=${id}`);
-        list.innerHTML = '';
-        if (venues.length === 0) list.innerHTML = '<p>No venues found.</p>';
-
-        venues.forEach(v => {
-            const div = document.createElement('div');
-            div.className = 'item-card';
-            div.innerHTML = `
-                <h4>${v.name}</h4>
-                ${v.image_url ? `<img src="${v.image_url}" alt="Venue Image">` : ''}
-                <p>Capacity: ${v.capacity}, Price: $${v.price}</p>
-                <button onclick="showBookingForm(${id}, ${v.id}, '${v.name}', ${v.price})" ${!v.availability ? 'disabled' : ''}>
-                    ${v.availability ? 'Book This Venue' : 'Fully Booked'}
-                </button>
-            `;
-            list.appendChild(div);
-        });
-    } catch (e) { list.innerHTML = 'Error loading venues'; }
-}
-
-function showBookingForm(destId, venueId, venueName, price) {
-    document.getElementById('book-dest-id').value = destId;
-    document.getElementById('book-venue-id').value = venueId;
-    document.getElementById('book-venue-name-display').innerText = venueName;
-    document.getElementById('book-venue-price-display').innerText = '$' + price;
-
-    document.getElementById('booking-section').style.display = 'block';
-    document.getElementById('booking-section').scrollIntoView();
-}
-
-function setupBookingForm() {
-    const form = document.getElementById('booking-form');
-    if (!form) return;
-
-    form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const data = {
-            destination_id: document.getElementById('book-dest-id').value,
-            venue_id: document.getElementById('book-venue-id').value,
-            customer_name: document.getElementById('book-customer-name').value,
-            customer_email: document.getElementById('book-customer-email').value,
-            booking_date: document.getElementById('book-date').value
-        };
-
-        const res = await apiCall('/api/bookings', 'POST', data);
-        if (res.message) {
-            showAlert('Booking Successful!');
-            document.getElementById('booking-section').style.display = 'none';
-        } else {
-            showAlert('Error: ' + res.error);
-        }
-    });
-}
-
+// Functions that power the admin dashboard (loading data, handling forms, etc.)
 // --- ADMIN FUNCTIONS ---
 
+// Load all bookings for the admin view, separating pending and historical bookings
 async function loadAdminBookings() {
     const pendingBody = document.getElementById('bookings-pending-body');
     const historyBody = document.getElementById('bookings-history-body');
@@ -161,11 +80,13 @@ async function loadAdminBookings() {
     });
 }
 
+// Update a booking's status (e.g., confirm or cancel) and refresh the list
 async function updateBooking(id, status) {
     await apiCall(`/api/bookings/${id}`, 'PUT', { status });
     loadAdminBookings();
 }
 
+// Delete a booking after user confirmation and refresh the list
 async function deleteBooking(id) {
     if (confirm('Delete this booking?')) {
         await apiCall(`/api/bookings/${id}`, 'DELETE');
@@ -173,6 +94,7 @@ async function deleteBooking(id) {
     }
 }
 
+// Load all destinations for the admin page and populate edit/delete controls
 async function loadAdminDestinations() {
     const list = document.getElementById('admin-dest-list');
     const dests = await apiCall('/api/destinations');
@@ -203,6 +125,7 @@ async function loadAdminDestinations() {
     populateDestDropdowns(dests);
 }
 
+// Fill destination <select> elements in the admin forms (add venue, filter venues)
 function populateDestDropdowns(dests) {
     const selects = [document.getElementById('new-venue-dest-select'), document.getElementById('admin-venue-filter-dest')];
     selects.forEach(sel => {
@@ -233,6 +156,7 @@ function populateDestDropdowns(dests) {
     });
 }
 
+// Open the edit‑destination modal and pre‑fill fields with the selected destination's data
 function openEditDest(id, name, desc, avail) {
     document.getElementById('edit-dest-id').value = id;
     document.getElementById('edit-dest-name').value = name;
@@ -242,6 +166,7 @@ function openEditDest(id, name, desc, avail) {
     document.getElementById('edit-dest-container').scrollIntoView();
 }
 
+// Prompt for confirmation and delete a destination, then refresh the list
 async function deleteDest(id) {
     if (confirm('Delete destination?')) {
         await apiCall(`/api/destinations/${id}`, 'DELETE');
@@ -249,6 +174,7 @@ async function deleteDest(id) {
     }
 }
 
+// Load venues for the admin page, optionally filtered by destination, and render edit/delete controls
 async function loadAdminVenues() {
     const list = document.getElementById('admin-venue-list');
     const filter = document.getElementById('admin-venue-filter-dest').value;
@@ -281,6 +207,7 @@ async function loadAdminVenues() {
     });
 }
 
+// Open the edit‑venue modal and fill it with the selected venue's details
 function openEditVenue(id, name, cap, price, avail, destId) {
     document.getElementById('edit-venue-id').value = id;
     document.getElementById('edit-venue-dest-id').value = destId;
@@ -292,6 +219,7 @@ function openEditVenue(id, name, cap, price, avail, destId) {
     document.getElementById('edit-venue-container').scrollIntoView();
 }
 
+// Confirm and delete a venue, then reload the venue list
 async function deleteVenue(id) {
     if (confirm('Delete venue?')) {
         await apiCall(`/api/venues/${id}`, 'DELETE');
@@ -299,6 +227,7 @@ async function deleteVenue(id) {
     }
 }
 
+// Attach event listeners to all admin forms (add/edit destination, add/edit venue)
 function setupAdminForms() {
     // Add Destination
     document.getElementById('add-destination-form').addEventListener('submit', async (e) => {
