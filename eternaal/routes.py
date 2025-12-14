@@ -266,6 +266,15 @@ def create_booking():
     if not dest or not dest['availability'] or not venue or not venue['availability']:
         return jsonify({'error': 'Selected destination or venue is unavailable'}), 400
 
+    # Prevent double booking
+    existing_booking = db.execute(
+        'SELECT id FROM booking WHERE venue_id = ? AND booking_date = ? AND status NOT IN ("cancelled", "rejected")',
+        (venue_id, booking_date)
+    ).fetchone()
+    
+    if existing_booking:
+        return jsonify({'error': 'This venue is already booked for the selected date.'}), 409 # 409 Conflict
+
     db.execute('INSERT INTO booking (customer_name, customer_email, destination_id, venue_id, booking_date, status) VALUES (?, ?, ?, ?, ?, ?)',
                (customer_name, customer_email, destination_id, venue_id, booking_date, 'pending'))
     db.commit()
