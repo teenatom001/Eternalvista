@@ -1,4 +1,4 @@
-# Programming for Information Systems – Project Submission
+# Documentation
 
 ## Module Details
 
@@ -13,7 +13,7 @@
 
 ---
 
-## Assignment Task: "Eternal" – Wedding Venue Booking System
+## Assignment Task: "Eternal" – destination wedding
 
 ### Selected Organization
 
