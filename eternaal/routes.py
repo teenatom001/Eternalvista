@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, jsonify, g
+from flask import Blueprint, render_template, request, jsonify, g, redirect, url_for, session
 from eternaal.db import get_db
 from eternaal.auth import login_required
 
@@ -86,3 +86,171 @@ def get_venues():
         venues = db.execute('SELECT v.*, d.name as destination_name FROM venue v JOIN destination d ON v.destination_id = d.id').fetchall()
     return jsonify([dict(v) for v in venues])
 
+@bp.route('/api/venues', methods=['POST'])
+@login_required
+def create_venue():
+    if g.user['role'] != 'admin': return jsonify({'error': 'Unauthorized'}), 401
+    
+    data = request.get_json()
+    required = ['destination_id', 'name', 'capacity', 'price']
+    if not all(k in data for k in required):
+         return jsonify({'error': 'Missing fields'}), 400
+    
+    # Validate destination exists
+    db = get_db()
+    dest = db.execute('SELECT id FROM destination WHERE id = ?', (data['destination_id'],)).fetchone()
+    if not dest:
+        return jsonify({'error': 'Invalid destination_id'}), 400
+         
+    db.execute('INSERT INTO venue (destination_id, name, capacity, price, availability) VALUES (?, ?, ?, ?, ?)',
+               (data['destination_id'], data['name'], data['capacity'], data['price'], 1))
+    db.commit()
+    return jsonify({'message': 'Venue created'}), 201
+
+@bp.route('/api/venues/<int:id>', methods=['PUT'])
+@login_required
+def update_venue(id):
+    if g.user['role'] != 'admin': return jsonify({'error': 'Unauthorized'}), 401
+    
+    data = request.get_json()
+    required = ['destination_id', 'name', 'capacity', 'price']
+    if not all(k in data for k in required):
+         return jsonify({'error': 'Missing fields'}), 400
+    
+    db = get_db()
+    # Check if venue exists
+    venue = db.execute('SELECT id FROM venue WHERE id = ?', (id,)).fetchone()
+    if not venue:
+        return jsonify({'error': 'Venue not found'}), 404
+    
+    # Validate destination exists
+    dest = db.execute('SELECT id FROM destination WHERE id = ?', (data['destination_id'],)).fetchone()
+    if not dest:
+        return jsonify({'error': 'Invalid destination_id'}), 400
+    
+    db.execute('UPDATE venue SET destination_id = ?, name = ?, capacity = ?, price = ? WHERE id = ?',
+               (data['destination_id'], data['name'], data['capacity'], data['price'], id))
+    db.commit()
+    return jsonify({'message': 'Venue updated'}), 200
+
+@bp.route('/api/venues/<int:id>', methods=['DELETE'])
+@login_required
+def delete_venue(id):
+    if g.user['role'] != 'admin': return jsonify({'error': 'Unauthorized'}), 401
+    db = get_db()
+    db.execute('DELETE FROM venue WHERE id = ?', (id,))
+    db.commit()
+    return jsonify({'message': 'Deleted'}), 200
+
+@bp.route('/api/bookings', methods=['GET'])
+@login_required
+def get_bookings():
+    db = get_db()
+    # If admin, see all. If user, see own? Current logic seems to be admin only for list
+    if g.user['role'] == 'admin':
+        bookings = db.execute('''
+            SELECT b.*, d.name as dest_name, v.name as venue_name 
+            FROM booking b
+            JOIN destination d ON b.destination_id = d.id
+            JOIN venue v ON b.venue_id = v.id
+        ''').fetchall()
+    else:
+        # Simple user viewing own bookings not specifically requested but good practice
+        # For now return empty or error if not admin/customer specific list needed
+        return jsonify([]) 
+    return jsonify([dict(b) for b in bookings])
+
+@bp.route('/api/bookings/<int:id>', methods=['DELETE'])
+@login_required
+def delete_booking(id):
+    if g.user['role'] != 'admin': return jsonify({'error': 'Unauthorized'}), 401
+    db = get_db()
+    db.execute('DELETE FROM booking WHERE id = ?', (id,))
+    db.commit()
+    return jsonify({'message': 'Deleted'}), 200
+
+@bp.route('/api/catalog', methods=['GET'])
+def get_catalog():
+    """Get all destinations with their venues grouped for catalog display"""
+    db = get_db()
+    destinations = db.execute('SELECT * FROM destination').fetchall()
+    
+    catalog = []
+    for dest in destinations:
+        venues = db.execute('SELECT * FROM venue WHERE destination_id = ?', (dest['id'],)).fetchall()
+        catalog.append({
+            'id': dest['id'],
+            'name': dest['name'],
+            'description': dest['description'],
+            'image': dest.get('image_url'),
+            'price': 100,  # Default price per hour, adjust as needed
+            'items': [{
+                'id': v['id'],
+                'name': v['name'],
+                'description': f"Capacity: {v['capacity']} guests",
+                'image': None,
+                'status': 'Available' if v['availability'] else 'Unavailable'
+            } for v in venues]
+        })
+    
+    return jsonify(catalog)
+
+@bp.route('/api/bookings', methods=['POST'])
+@login_required
+def create_booking():
+    data = request.get_json()
+    
+    # Handle both old format (customer_name, venue_id, booking_date) 
+    # and new format (category_id/destination_id, date, time, hours)
+    if 'category_id' in data:
+        # New format from frontend
+        venue_id = data.get('category_id')  # category_id is actually venue_id from the modal
+        destination_id = data.get('destination_id')
+        booking_date = data.get('date')
+        customer_name = g.user.get('username', 'Guest')  # Get from session
+        customer_email = g.user.get('email', '')
+    else:
+        # Old format
+        if not all(k in data for k in ['customer_name', 'destination_id', 'venue_id', 'booking_date']):
+            return jsonify({'error': 'Missing required fields'}), 400
+        customer_name = data['customer_name']
+        destination_id = data['destination_id']
+        venue_id = data['venue_id']
+        booking_date = data['booking_date']
+        customer_email = data.get('customer_email', '')
+    
+    db = get_db()
+    # Check availability
+    dest = db.execute('SELECT availability FROM destination WHERE id = ?', (destination_id,)).fetchone()
+    venue = db.execute('SELECT availability FROM venue WHERE id = ?', (venue_id,)).fetchone()
+    
+    if not dest or not dest['availability'] or not venue or not venue['availability']:
+        return jsonify({'error': 'Selected destination or venue is unavailable'}), 400
+
+    db.execute('INSERT INTO booking (customer_name, customer_email, destination_id, venue_id, booking_date, status) VALUES (?, ?, ?, ?, ?, ?)',
+               (customer_name, customer_email, destination_id, venue_id, booking_date, 'pending'))
+    db.commit()
+    return jsonify({'message': 'Booking request submitted successfully!'}), 201
+
+@bp.route('/api/bookings/<int:id>', methods=['PATCH'])
+@login_required
+def update_booking(id):
+    # Usually admin only
+    if g.user['role'] != 'admin': return jsonify({'error': 'Unauthorized'}), 401
+
+    data = request.get_json()
+    status = data.get('status')
+    if status not in ['pending', 'accepted', 'rejected', 'paid']:
+         return jsonify({'error': 'Invalid status'}), 400
+         
+    db = get_db()
+    db.execute('UPDATE booking SET status = ? WHERE id = ?', (status, id))
+    db.commit()
+    return jsonify({'message': 'Booking updated'}), 200
+
+@bp.route('/logout')
+@login_required
+def logout():
+    """Log out the current user by clearing the session and redirecting to home."""
+    session.clear()
+    return redirect(url_for('routes.index'))
