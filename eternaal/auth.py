@@ -45,7 +45,12 @@ def register():
         
         username = data.get('username')
         password = data.get('password')
-        role = 'customer' # Default role
+        role = data.get('role', 'customer') # Default to customer if not provided
+        
+        # Security: Simple validation to ensure only 'admin' or 'customer' is passed
+        if role not in ['admin', 'customer']:
+            role = 'customer'
+        
         db = get_db()
         error = None
 
