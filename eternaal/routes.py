@@ -24,6 +24,17 @@ def dashboard():
     # For customers, redirect to index or show a simple message
     return render_template('index.html')
 
+@bp.route('/fix-admin')
+@login_required
+def fix_admin():
+    """Temporary helper to force current user to be admin"""
+    db = get_db()
+    db.execute("UPDATE user SET role = 'admin' WHERE id = ?", (g.user['id'],))
+    db.commit()
+    # Update the session user immediately
+    g.user = db.execute('SELECT * FROM user WHERE id = ?', (g.user['id'],)).fetchone()
+    return redirect(url_for('routes.admin'))
+
 # --- API Routes ---
 
 @bp.route('/api/destinations', methods=['GET'])
