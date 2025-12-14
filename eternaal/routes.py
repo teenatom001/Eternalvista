@@ -146,8 +146,9 @@ def delete_venue(id):
 @login_required
 def get_bookings():
     db = get_db()
-    # If admin, see all. If user, see own? Current logic seems to be admin only for list
+    
     if g.user['role'] == 'admin':
+        # Admin sees all bookings
         bookings = db.execute('''
             SELECT b.*, d.name as dest_name, v.name as venue_name 
             FROM booking b
@@ -155,9 +156,36 @@ def get_bookings():
             JOIN venue v ON b.venue_id = v.id
         ''').fetchall()
     else:
-        # Simple user viewing own bookings not specifically requested but good practice
-        # For now return empty or error if not admin/customer specific list needed
-        return jsonify([]) 
+        # Customer sees only their own bookings
+        bookings = db.execute('''
+            SELECT b.*, d.name as dest_name, v.name as venue_name 
+            FROM booking b
+            JOIN destination d ON b.destination_id = d.id
+            JOIN venue v ON b.venue_id = v.id
+            WHERE b.customer_email = ?
+        ''', (g.user['username'],)).fetchall() # Using username as email/identifier for now based on auth logic
+        
+        # NOTE: In auth.py registration, we only saved 'username'. 
+        # But booking table has 'customer_email'. 
+        # If the user registered with an email as username, this works.
+        # If not, we should probably query by customer_name = username.
+        # Let's double check the booking creation logic. 
+        # create_booking uses: customer_email = g.user.get('email', '')
+        # But 'user' table has no email column!
+        
+        # Correction: The user table only has username.
+        # The booking table has customer_name and customer_email.
+        # When booking as a user, we should match by something unique.
+        # Let's match by customer_name = username for now since that's what we have.
+        
+        bookings = db.execute('''
+            SELECT b.*, d.name as dest_name, v.name as venue_name 
+            FROM booking b
+            JOIN destination d ON b.destination_id = d.id
+            JOIN venue v ON b.venue_id = v.id
+            WHERE b.customer_name = ?
+        ''', (g.user['username'],)).fetchall()
+
     return jsonify([dict(b) for b in bookings])
 
 @bp.route('/api/bookings/<int:id>', methods=['DELETE'])

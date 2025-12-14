@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Index Page
         loadDestinations();
         setupBookingForm();
+        loadUserBookings(); // Add this
     }
 });
 
@@ -118,6 +119,47 @@ function setupBookingForm() {
             showAlert('Error: ' + res.error);
         }
     });
+}
+
+// --- USER BOOKINGS ---
+async function loadUserBookings() {
+    const container = document.getElementById('user-bookings-container');
+    if (!container) return; // Only exists if user is logged in
+
+    try {
+        const bookings = await apiCall('/api/bookings');
+        const list = document.getElementById('user-bookings-list');
+        list.innerHTML = '';
+
+        if (bookings.length === 0) {
+            list.innerHTML = '<p class="text-muted">You have no bookings yet.</p>';
+            return;
+        }
+
+        bookings.forEach(b => {
+            const div = document.createElement('div');
+            div.className = 'card mb-3';
+            div.innerHTML = `
+                <div class="card-body">
+                    <h5 class="card-title">${b.dest_name} - ${b.venue_name}</h5>
+                    <p class="card-text">
+                        <strong>Date:</strong> ${b.booking_date}<br>
+                        <strong>Status:</strong> <span class="badge ${getStatusBadge(b.status)}">${b.status.toUpperCase()}</span>
+                    </p>
+                </div>
+             `;
+            list.appendChild(div);
+        });
+    } catch (e) {
+        console.error('Error loading bookings', e);
+    }
+}
+
+function getStatusBadge(status) {
+    if (status === 'confirmed' || status === 'accepted') return 'bg-success';
+    if (status === 'pending') return 'bg-warning text-dark';
+    if (status === 'cancelled' || status === 'rejected') return 'bg-danger';
+    return 'bg-secondary';
 }
 
 // --- ADMIN FUNCTIONS ---

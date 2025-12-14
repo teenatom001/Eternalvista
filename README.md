@@ -486,61 +486,9 @@ CREATE TABLE booking (
     FOREIGN KEY (destination_id) REFERENCES destination(id),
     FOREIGN KEY (venue_id) REFERENCES venue(id)
 );
-```
-
----
-
-
-## Attributions
-
-### External Libraries & Frameworks
-
-1. **Flask** (BSD-3-Clause License)
-   - Source: https://flask.palletsprojects.com/
-   - Usage: Web framework for backend API
-   - Integration: Used as the core framework for routing, request handling, and application structure
-
-2. **Bootstrap 5** (MIT License)
-   - Source: https://getbootstrap.com/
-   - Usage: CSS framework for responsive design
-   - Integration: Linked via CDN in base.html for styling components
-
-3. **pytest** (MIT License)
-   - Source: https://pytest.org/
-   - Usage: Testing framework
-   - Integration: Used for all unit and integration tests
-
-4. **Werkzeug** (BSD-3-Clause License)
-   - Source: https://werkzeug.palletsprojects.com/
-   - Usage: Password hashing and security utilities
-   - Integration: Used in auth.py for secure password storage
 
 
 
-### Code Attribution
-
-- Database schema design: Original student work
-- API endpoint logic: Original student work with AI assistance for syntax
-- Frontend JavaScript: Original student work
-- Test cases: Original student work
-
----
-
-
-
-
----
-
-## Future Enhancements
-
-1. Email notifications for booking confirmations
-2. Payment gateway integration
-3. Customer review system
-4. Photo gallery for venues
-5. Calendar view for availability
-6. Mobile responsive design improvements
-7. Advanced search and filtering
-8. Reporting dashboard for admin
 
 
 

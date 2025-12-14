@@ -32,6 +32,17 @@
         <!-- Global Alerts -->
         <div id="alert-placeholder"></div>
 
+        <!-- My Bookings Section (Only for logged in users) -->
+        {% if g.user and g.user.role != 'admin' %}
+        <section id="user-bookings-container" class="mb-5">
+            <h2 class="font-playfair mb-4">My Bookings</h2>
+            <div id="user-bookings-list">
+                <p>Loading your bookings...</p>
+            </div>
+            <hr>
+        </section>
+        {% endif %}
+
         <!-- ================= DESTINATIONS ================= -->
         <section id="destinations-section">
             <h2>Our Destinations</h2>
