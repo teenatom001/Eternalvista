@@ -205,8 +205,18 @@ async function loadAdminBookings() {
 }
 
 async function updateBooking(id, status) {
-    await apiCall(`/api/bookings/${id}`, 'PUT', { status });
-    loadAdminBookings();
+    try {
+        const res = await apiCall(`/api/bookings/${id}`, 'PATCH', { status }); // Changed PUT to PATCH to match routes.py
+        if (res.message) {
+            alert('Booking updated to: ' + status);
+            loadAdminBookings();
+        } else {
+            alert('Error updating booking: ' + (res.error || 'Unknown error'));
+        }
+    } catch (e) {
+        console.error(e);
+        alert('Failed to communicate with server.');
+    }
 }
 
 async function deleteBooking(id) {
