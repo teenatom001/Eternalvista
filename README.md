@@ -1,196 +1,72 @@
-# Documentation
+Eternal – Destination Wedding System
+Overview
 
-## Module Details
+Eternal is a web-based system for a boutique wedding planning agency in Ireland. It helps manage venues, destinations, and bookings efficiently, replacing manual spreadsheets and phone-based coordination. Customers can browse venues and make bookings, while admins can manage all data securely.
 
-| Item                      | Description                                        |
-| ------------------------- | -------------------------------------------------- |
-| **Module Title**          | Programming for Information Systems                |
-| **Module Code**           | B9IS123                                            |
-| **Programme/Cohort**      | 2526_TMD1                                          |
-| **Assessment Number**     | 2                                                  |
-| **Submission Components** | Code/Project (GitHub), Documentation, Presentation |
-| **Student**               | Teena Tom                                          |
+Technologies Used
 
----
+Backend: Python 3.13, Flask 3.1.2
 
-## Assignment Task: "Eternal" – destination wedding
+Frontend: HTML5, Bootstrap 5, JavaScript 
 
-### Selected Organization
+Database: SQLite
 
-**Name:** Eternal (formerly EternalVista)
-**Business Context:** I designed this system for a boutique wedding planning agency in Ireland that manages exclusive venues across destinations such as Dublin, Wicklow, and Cork.
-**Justification:** The organisation currently relies on manual processes such as spreadsheets and phone calls, which frequently leads to double bookings and inefficiencies. I identified that a web‑based CRUD system would solve this problem by centralising venue availability and booking management.
+Testing: Pytest
 
----
+Version Control: Git, GitHub
 
-## Requirements of the Information System
+Features
 
-### 1. Data Requirements (CRUD)
+Role-based Access: Admin (full access), Customer (limited access)
 
-The system I developed manages the following entities with full Create, Read, Update, and Delete (CRUD) functionality:
+CRUD Operations: Create, Read, Update, Delete for Destinations, Venues, Bookings, and Users
 
-* **Destinations** (e.g., Dublin, Cork)
+Availability Checks: Prevents double booking
 
-  * *Create/Update/Delete:* Performed by Admin users only.
-  * *Read:* Available to all users.
+Validation: Ensures correct input in all forms
 
-* **Venues** (e.g., Grand Ballroom, Garden Suite)
+API-driven: Frontend fetches data via backend APIs asynchronously for a smooth user experience
 
-  * *Create/Update/Delete:* Admin only.
-  * *Read:* Publicly available and linked to Destinations.
+References / Links
 
-* **Bookings**
+GitHub Repository: https://github.com/teenatom001/Eternalvista
 
-  * *Create:* Registered customers can submit booking requests.
-  * *Read:* Customers can view only their own bookings, while Admins can view all bookings.
-  * *Update:* Admins update booking status (Confirmed / Cancelled).
-  * *Delete:* Admins can remove bookings when required.
+Flask Documentation: https://flask.palletsprojects.com/
 
-* **Users**
+Bootstrap Documentation: https://getbootstrap.com/docs/5.0/getting-started/introduction/
 
-  * *Read:* Admins can view registered users.
-  * *Delete:* Admins can ban or remove users from the system.
+Useful Commands
 
----
 
-### 2. User Roles & Validation
+Setup & Run Project:
 
-I implemented role‑based access control to ensure system security and correct usage:
+Create virtual environment
 
-* **Admin:** Has full access to manage destinations, venues, users, and all bookings.
-* **Customer:** Can browse destinations and venues, view only their own bookings, and create new booking requests.
-
-**Validation Rules Implemented:**
-
-* **Availability Checks:** The system prevents double booking of the same venue on the same date.
-* **Input Validation:** All forms validate required fields, valid dates, and logical constraints before submission.
-
----
-
-## System Architecture
-
-The application follows the required **API‑First Architecture**, which I implemented as follows:
-
-### 1. Backend (API Provider)
-
-* Built using **Flask (Python)** and **SQLite**.
-* Provides REST‑style JSON endpoints such as `GET /api/destinations` and `POST /api/bookings`.
-* Handles all database operations, session management, authentication, and business rules including availability checking.
-
-### 2. Frontend (API Consumer)
-
-* Developed using **HTML5, Bootstrap 5, and Vanilla JavaScript**.
-* The frontend consumes backend APIs using JavaScript `fetch()` calls.
-* Main content is not rendered directly using Jinja templates; instead, JSON data is retrieved asynchronously and injected into the DOM.
-* CRUD operations occur without page refreshes, providing a smoother user experience.
-
-**Technology Stack Used:**
-
-* **Programming Languages:** Python 3.13, JavaScript (ES6+)
-* **Framework:** Flask 3.1.2
-* **Database:** SQLite
-* **Testing Framework:** Pytest
-
----
-
-## Testing & Debugging
-
-I created and executed automated tests to verify correctness and reliability.
-
-### 1. Running Tests
-
-After activating the virtual environment, tests can be executed using:
-
-```bash
-pytest
-# or
-pytest -v
-```
-
-### 2. Test Coverage
-
-* **Unit Tests:** I tested individual API endpoints (for example, ensuring destination creation returns HTTP 201).
-* **Integration Tests:** I validated full workflows from frontend payloads through API endpoints to database persistence.
-* **Business Logic Tests:** I specifically tested the double‑booking prevention logic to ensure venues cannot be booked more than once for the same date.
-
----
-
-## Installation & Setup
-
-### 1. Clone the Repository
-
-```bash
-git clone <repository-url>
-cd eternaal
-```
-
-### 2. Virtual Environment Setup
-
-```bash
 python -m venv venv
-# Windows
+
+Activate environment (Windows)
+
 venv\Scripts\activate
-# macOS / Linux
-source venv/bin/activate
-```
 
-### 3. Install Dependencies
 
-```bash
+ Install dependencies
 pip install -r requirements.txt
-```
 
-### 4. Database Initialization
-
-The application automatically creates the database if it does not exist. To reset it manually, I used:
-
-```bash
-python -c "from eternaal import create_app; from eternaal.db import init_db; app = create_app(); app.app_context().push(); init_db()"
-```
-
-*(This command clears existing data.)*
-
-### 5. Run the Application
-
-```bash
+ Run the Flask app
 flask run
-# or
-python app.py
-```
 
-The application runs at `http://127.0.0.1:5000`.
 
-### 6. Admin Login Credentials
 
-* **Username:** admin
-* **Password:** admin123
+Conclusion
 
----
+The Eternal system provides an efficient, web-based solution for managing destination weddings. It replaces manual processes with a secure, user-friendly platform that supports role-based access, CRUD operations, and real-time availability checks. By centralizing venue, booking, and user management, the system reduces errors, saves time, and improves the overall experience for both customers and administrators.
 
-## Attributions & Resources
 
-During development, I referred to the following resources:
+References
 
-* **Flask Documentation:** For the Application Factory pattern and Blueprint structure.
-* **Bootstrap 5 Documentation:** For responsive layout and UI components such as cards and modals.
-* **SQLite Documentation:** For database design and queries.
-* **Google Fonts:** Used Playfair Display and Lato for typography.
-
----
-
-## Generative AI Declaration
-
-**AI‑Assisted Idea Generation and Structuring (Level 2/3)**
-
-I used generative AI tools to support development in the following ways:
-
-* Debugging specific errors (e.g., "Unsupported Media Type" issues in Fetch API calls).
-* Refactoring the project structure into a modular Blueprint‑based Flask application.
-* Generating boilerplate unit test structures and pytest fixtures.
-
-All AI‑generated suggestions were critically reviewed, tested, and manually integrated by me. Core business logic, including availability checking and role‑based access control, was implemented and verified to meet the project requirements.
-
----
-
-*Date: 14 December 2025*
-
+chatgpt::https://chatgpt.com/c/693ff246-7bb4-8326-8374-a130a65c70d4,
+https://chatgpt.com/c/693db122-5ad4-8333-9b88-f20ba34093c7
+flask documentation:https://flask.palletsprojects.com/en/stable/tutorial/database/
+flask-mega-tutorial:https://blog.miguelgrinberg.com/post/the-flask-mega-tutorial-part-v-user-logins
+youtubelink:https://youtu.be/SSqvwa2bx5k?si=DueQOFmAcLX_0Fin 
+mozilla org:https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
