@@ -1,0 +1,243 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<style>
+    .status-table-container {
+        background: #fff;
+        border-radius: 12px;
+        padding: 30px;
+        margin: 40px auto;
+        max-width: 1200px;
+    }
+
+    .status-table {
+        width: 100%;
+    }
+
+    .status-badge {
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 12px;
+    }
+
+    .status-pending {
+        background: #fff3cd;
+        color: #856404;
+    }
+
+    .status-accepted {
+        background: #d1ecf1;
+        color: #0c5460;
+    }
+
+    .status-rejected {
+        background: #f8d7da;
+        color: #721c24;
+    }
+
+    .status-paid {
+        background: #d4edda;
+        color: #155724;
+    }
+
+    /* Filter Buttons */
+    .filter-section {
+        margin-bottom: 25px;
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+
+    .filter-btn {
+        padding: 10px 20px;
+        border: 2px solid #dee2e6;
+        background: white;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-weight: 600;
+        font-size: 14px;
+    }
+
+    .filter-btn:hover {
+        background: #f8f9fa;
+        border-color: #667eea;
+    }
+
+    .filter-btn.active {
+        background: #667eea;
+        color: white;
+        border-color: #667eea;
+    }
+
+    .filter-dropdown {
+        padding: 10px 15px;
+        border: 2px solid #dee2e6;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        background: white;
+    }
+</style>
+
+<div class="container">
+    <div class="status-table-container">
+
+        <div class="text-center mb-4">
+            <h1>📊 Booking Status</h1>
+            <p>Filter and view your booking data</p>
+        </div>
+
+        <!-- SUMMARY CARDS -->
+        <div class="row mb-4 text-center">
+            <div class="col-md-3 mb-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h6 class="text-primary">📦 Total</h6>
+                        <h3>{{ summary.total }}</h3>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3 mb-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h6 class="text-warning">⏳ Pending</h6>
+                        <h3>{{ summary.pending }}</h3>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3 mb-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h6 class="text-success">✅ Accepted</h6>
+                        <h3>{{ summary.accepted }}</h3>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3 mb-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h6 class="text-danger">❌ Rejected</h6>
+                        <h3>{{ summary.rejected }}</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FILTER SECTION -->
+        <div class="filter-section">
+            <strong>Filter by Status:</strong>
+
+            <!-- Button Format -->
+            <button class="filter-btn active" onclick="filterTable('all')">All</button>
+            <button class="filter-btn" onclick="filterTable('pending')">⏳ Pending</button>
+            <button class="filter-btn" onclick="filterTable('accepted')">✅ Accepted</button>
+            <button class="filter-btn" onclick="filterTable('rejected')">❌ Rejected</button>
+            <button class="filter-btn" onclick="filterTable('paid')">💰 Paid</button>
+
+            <!-- OR Dropdown Format (Alternative) -->
+            <select class="filter-dropdown ms-3" onchange="filterTable(this.value)">
+                <option value="all">All Statuses</option>
+                <option value="pending">Pending</option>
+                <option value="accepted">Accepted</option>
+                <option value="rejected">Rejected</option>
+                <option value="paid">Paid</option>
+            </select>
+        </div>
+
+        <!-- TABLE -->
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped">
+                <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Destination</th>
+                        <th>Service</th>
+                        <th>Date & Time</th>
+                        <th>Duration</th>
+                        <th>Total Cost</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+
+                <tbody id="bookingTableBody">
+                    {% for b in bookings %}
+                    <tr data-status="{{ b.status }}">
+                        <td>#{{ b.id }}</td>
+                        <td>{{ b.destination }}</td>
+                        <td>{{ b.service }}</td>
+                        <td>{{ b.datetime }}</td>
+                        <td>{{ b.duration }}</td>
+                        <td>€{{ b.total_cost }}</td>
+
+                        <td>
+                            <span class="status-badge status-{{ b.status }}">
+                                {{ b.status|capitalize }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Empty State -->
+        <div id="emptyState" class="text-center py-5 d-none">
+            <i class="bi bi-inbox" style="font-size: 64px; color: #ccc;"></i>
+            <h5 class="mt-3 text-muted">No bookings found</h5>
+            <p class="text-muted">Try selecting a different filter</p>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    function filterTable(status) {
+        const rows = document.querySelectorAll('#bookingTableBody tr');
+        const emptyState = document.getElementById('emptyState');
+        const tableBody = document.getElementById('bookingTableBody');
+        let visibleCount = 0;
+
+        // Update active button
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+
+        // Set active button based on status
+        const buttons = document.querySelectorAll('.filter-btn');
+        buttons.forEach(btn => {
+            if ((status === 'all' && btn.textContent.includes('All')) ||
+                btn.textContent.toLowerCase().includes(status)) {
+                btn.classList.add('active');
+            }
+        });
+
+        // Filter rows
+        rows.forEach(row => {
+            const rowStatus = row.getAttribute('data-status');
+
+            if (status === 'all' || rowStatus === status) {
+                row.style.display = '';
+                visibleCount++;
+            } else {
+                row.style.display = 'none';
+            }
+        });
+
+        // Show/hide empty state
+        if (visibleCount === 0) {
+            tableBody.parentElement.style.display = 'none';
+            emptyState.classList.remove('d-none');
+        } else {
+            tableBody.parentElement.style.display = '';
+            emptyState.classList.add('d-none');
+        }
+    }
+</script>
+
+{% endblock %}

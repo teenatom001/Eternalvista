@@ -1,0 +1,367 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    /* Admin Dashboard Styles */
+    .dashboard-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border: none;
+        border-radius: 12px;
+        background: #fff;
+        overflow: hidden;
+    }
+
+    .dashboard-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+    }
+</style>
+
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="font-playfair">Admin Dashboard</h2>
+        <span class="badge bg-gold text-dark p-2">Admin Panel</span>
+    </div>
+
+    <div class="row">
+        <!-- Analytics Section -->
+        <div class="col-12 mb-4">
+            <div class="row g-4">
+                <!-- Requests Today -->
+                <div class="col-md-3">
+                    <div class="card shadow-sm border-0 bg-dark text-white text-center p-3">
+                        <h6 class="text-white-50">Requests Today</h6>
+                        <h2 class="display-6">{{ data.requests_today }}</h2>
+                    </div>
+                </div>
+                <!-- Monthly Profit -->
+                <div class="col-md-3">
+                    <div class="card shadow-sm border-0 bg-gold text-dark text-center p-3">
+                        <h6 class="text-dark-50">Monthly Profit</h6>
+                        <h2 class="display-6">€{{ data.monthly_profit }}</h2>
+                    </div>
+                </div>
+                <!-- Total Customers -->
+                <div class="col-md-3">
+                    <div class="card shadow-sm border-0 text-center p-3">
+                        <h6 class="text-muted">Total Customers</h6>
+                        <h2 class="display-6">{{ data.total_customers }}</h2>
+                    </div>
+                </div>
+                <!-- New Customers Today -->
+                <div class="col-md-3">
+                    <div class="card shadow-sm border-0 text-center p-3">
+                        <h6 class="text-muted">New Today</h6>
+                        <h2 class="display-6 text-success">+{{ data.new_today }}</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Booking Management -->
+        <div class="col-12 mb-4">
+            <h3 class="font-playfair border-bottom pb-2 mb-3">Booking Management</h3>
+
+            <!-- Filter Buttons -->
+            <div class="mb-3 d-flex gap-2 flex-wrap align-items-center">
+                <strong>Filter:</strong>
+                <button class="btn btn-sm btn-outline-primary filter-btn active"
+                    onclick="filterBookings('all')">All</button>
+                <button class="btn btn-sm btn-outline-warning filter-btn"
+                    onclick="filterBookings('pending')">Pending</button>
+                <button class="btn btn-sm btn-outline-info filter-btn"
+                    onclick="filterBookings('accepted')">Accepted</button>
+                <button class="btn btn-sm btn-outline-danger filter-btn"
+                    onclick="filterBookings('rejected')">Rejected</button>
+                <button class="btn btn-sm btn-outline-success filter-btn" onclick="filterBookings('paid')">Paid</button>
+            </div>
+
+            <!-- Bookings Table -->
+            <div class="table-responsive">
+                <table class="table table-hover table-bordered">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>ID</th>
+                            <th>Customer</th>
+                            <th>Destination</th>
+                            <th>Service</th>
+                            <th>Date</th>
+                            <th>Time</th>
+                            <th>Hours</th>
+                            <th>Total</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="bookingsTableBody">
+                        <tr>
+                            <td colspan="10" class="text-center text-muted py-4">Loading...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="emptyBookingState" class="text-center py-5 d-none">
+                <p class="text-muted">No bookings found.</p>
+            </div>
+        </div>
+
+        <!-- Platform Settings -->
+        <div class="col-12 mb-3">
+            <h3 class="font-playfair border-bottom pb-2">Platform Settings</h3>
+        </div>
+
+        <!-- Destinations -->
+        <div class="col-md-6">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-gold text-dark">
+                    <h5 class="mb-0">Destinations</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <input type="text" class="form-control mb-2" id="newDestInput" placeholder="Name">
+                        <textarea class="form-control mb-2" id="newDestDesc" placeholder="Description"
+                            rows="2"></textarea>
+                        <input type="file" class="form-control mb-2" id="newDestImage" accept="image/*">
+                        <button class="btn btn-dark w-100" onclick="addSetting('destination')">Add Destination</button>
+                    </div>
+                    <ul class="list-group" id="destList">
+                        <li class="list-group-item text-muted">Loading...</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Services -->
+        <div class="col-md-6">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-gold text-dark">
+                    <h5 class="mb-0">Services</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <input type="text" class="form-control mb-2" id="newCatInput" placeholder="Name">
+                        <textarea class="form-control mb-2" id="newCatDesc" placeholder="Description"
+                            rows="2"></textarea>
+                        <input type="file" class="form-control mb-2" id="newCatImage" accept="image/*">
+                        <button class="btn btn-dark w-100" onclick="addSetting('category')">Add Service</button>
+                    </div>
+                    <ul class="list-group" id="catList">
+                        <li class="list-group-item text-muted">Loading...</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Modal -->
+<div class="modal fade" id="settingModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Item</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="editType">
+                <input type="hidden" id="editId">
+                <div class="mb-3">
+                    <label class="form-label">Name</label>
+                    <input type="text" class="form-control" id="editName">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Description</label>
+                    <textarea class="form-control" id="editDesc" rows="3"></textarea>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Image URL</label>
+                    <input type="text" class="form-control" id="editImage">
+                </div>
+                <button type="button" class="btn btn-gold text-dark w-100" onclick="submitEdit()">Save Changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        loadSettings();
+        loadBookings();
+    });
+
+    async function apiCall(url, method = 'GET', body = null) {
+        const options = { method, headers: { 'Content-Type': 'application/json' } };
+        if (body) options.body = JSON.stringify(body);
+
+        try {
+            const resp = await fetch(url, options);
+            const data = await resp.json();
+            if (!resp.ok) throw new Error(data.error || 'Error');
+            return data;
+        } catch (err) {
+            alert(err.message);
+            return null;
+        }
+    }
+
+    // --- Bookings ---
+    let allBookings = [];
+    let currentFilter = 'all';
+
+    async function loadBookings() {
+        const data = await apiCall('/api/bookings');
+        if (data) {
+            allBookings = data;
+            renderBookingsTable();
+        }
+    }
+
+    function filterBookings(status) {
+        currentFilter = status;
+        document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+        event.target.classList.add('active');
+        renderBookingsTable();
+    }
+
+    function renderBookingsTable() {
+        const tbody = document.getElementById('bookingsTableBody');
+        const emptyState = document.getElementById('emptyBookingState');
+        const table = tbody.closest('table');
+
+        let filtered = allBookings;
+        if (currentFilter !== 'all') filtered = allBookings.filter(b => b.status === currentFilter);
+
+        if (filtered.length === 0) {
+            table.style.display = 'none';
+            emptyState.classList.remove('d-none');
+            return;
+        }
+
+        table.style.display = '';
+        emptyState.classList.add('d-none');
+
+        tbody.innerHTML = filtered.map(b => `
+            <tr>
+                <td>#${b.id}</td>
+                <td>${b.customer_name}</td>
+                <td>${b.destination_name}</td>
+                <td>${b.category_name}</td>
+                <td>${b.booking_date}</td>
+                <td>${b.start_time}</td>
+                <td>${b.hours}</td>
+                <td>€${b.total_price.toFixed(2)}</td>
+                <td><span class="badge ${getStatusBadge(b.status)}">${b.status}</span></td>
+                <td>
+                    ${b.status === 'pending' ? `
+                    <button class="btn btn-sm btn-success" onclick="updateStatus(${b.id}, 'accepted')">✓</button>
+                    <button class="btn btn-sm btn-danger" onclick="updateStatus(${b.id}, 'rejected')">✕</button>
+                    ` : '-'}
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    function getStatusBadge(status) {
+        if (status === 'pending') return 'bg-warning text-dark';
+        if (status === 'accepted') return 'bg-info text-dark';
+        if (status === 'paid') return 'bg-success';
+        return 'bg-secondary';
+    }
+
+    async function updateStatus(id, status) {
+        if (confirm(`Mark as ${status}?`)) {
+            const data = await apiCall(`/api/bookings/${id}/status`, 'PUT', { status });
+            if (data) loadBookings();
+        }
+    }
+
+    // --- Settings ---
+    async function loadSettings() {
+        const data = await apiCall('/api/settings');
+        if (data) {
+            renderList('destList', data.destinations, 'destination');
+            renderList('catList', data.categories, 'category');
+        }
+    }
+
+    function renderList(elId, items, type) {
+        const el = document.getElementById(elId);
+        if (!items.length) { el.innerHTML = '<li class="list-group-item">None yet.</li>'; return; }
+
+        el.innerHTML = items.map(item => `
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                    <strong>${item.name}</strong>
+                    <br><small class="text-muted">${item.description || ''}</small>
+                </div>
+                <div>
+                    <button class="btn btn-sm btn-outline-dark" onclick="openEdit('${type}', ${item.id}, '${item.name}', '${item.description || ''}', '${item.image_url || ''}')">Edit</button>
+                    <button class="btn btn-sm btn-danger" onclick="deleteSetting('${type}', ${item.id})">Del</button>
+                </div>
+            </li>
+        `).join('');
+    }
+
+    async function addSetting(type) {
+        const nameIn = document.getElementById(type === 'destination' ? 'newDestInput' : 'newCatInput');
+        const descIn = document.getElementById(type === 'destination' ? 'newDestDesc' : 'newCatDesc');
+        const fileIn = document.getElementById(type === 'destination' ? 'newDestImage' : 'newCatImage');
+
+        if (!nameIn.value) return alert('Name required');
+
+        const formData = new FormData();
+        formData.append('name', nameIn.value);
+        formData.append('description', descIn.value);
+        if (fileIn.files[0]) formData.append('image', fileIn.files[0]);
+
+        try {
+            const resp = await fetch(`/api/settings/${type}`, { method: 'POST', body: formData });
+            const data = await resp.json();
+            if (!resp.ok) throw new Error(data.error);
+
+            alert(data.message);
+            nameIn.value = ''; descIn.value = ''; fileIn.value = '';
+            loadSettings();
+        } catch (e) { alert(e.message); }
+    }
+
+    async function deleteSetting(type, id) {
+        if (confirm('Delete this?')) {
+            const data = await apiCall(`/api/settings/${type}/${id}`, 'DELETE');
+            if (data) loadSettings();
+        }
+    }
+
+    // --- Edit ---
+    let editModal;
+    function openEdit(type, id, name, desc, img) {
+        if (!editModal) editModal = new bootstrap.Modal(document.getElementById('settingModal'));
+        document.getElementById('editType').value = type;
+        document.getElementById('editId').value = id;
+        document.getElementById('editName').value = name;
+        document.getElementById('editDesc').value = desc;
+        document.getElementById('editImage').value = img;
+        editModal.show();
+    }
+
+    async function submitEdit() {
+        const type = document.getElementById('editType').value;
+        const id = document.getElementById('editId').value;
+        const body = {
+            name: document.getElementById('editName').value,
+            description: document.getElementById('editDesc').value,
+            image_url: document.getElementById('editImage').value
+        };
+        const data = await apiCall(`/api/settings/${type}/${id}`, 'PUT', body);
+        if (data) {
+            alert('Saved');
+            editModal.hide();
+            loadSettings();
+        }
+    }
+</script>
+{% endblock %}
